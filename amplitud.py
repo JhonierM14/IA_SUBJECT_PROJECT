@@ -4,15 +4,15 @@ from seachTree import searchTree
 import time
 import copy
 
-def SOLUCION(head: searchTree, solucion: list):
+def SOLUCION(head: searchTree, solucion: list) -> None:
     """
     Añade recursivamente los operadores realizados
     desde el ultimo de una rama, hasta el nodo 
     raiz o nodo padre del arbol
     
     Args
-    - head: ultimo nodo generado en la solucion
-    - solucion: lista donde se guardaran los operadores
+    - head (searchTree): ultimo nodo generado en la solucion
+    - solucion (list): lista donde se guardaran los operadores
     """    
     if head.nodoPadre != None:
         solucion.append(head.operadorRealizado)
@@ -20,9 +20,14 @@ def SOLUCION(head: searchTree, solucion: list):
     else:
         pass
 
-def nuevaPosicion(posicionActual: tuple, direccion: str):
+def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     """
-    Retorna una tupla con la nueva posicion del astronauta añadida la direccion pasada como parametro
+    Retorna una tupla con la posicion actual del astronauta
+    más la direccion de movimiento
+
+    Args 
+    - posicionActual (tupla): posicion actual del astronauta, ej:. (a, b)
+    - direccion (str): up | left | down | right
     """
     x, y = posicionActual
     if direccion == "up": return (x - 1, y)
@@ -30,7 +35,20 @@ def nuevaPosicion(posicionActual: tuple, direccion: str):
     if direccion == "down": return (x + 1, y)
     if direccion == "right": return (x, y + 1)
 
-def actualizarMapa(head: searchTree, nuevaPosicionAstronauta: tuple):
+def actualizarMapa(head: searchTree, nuevaPosicionAstronauta: tuple) -> list[list]:
+        """
+        Copia el mapa del nodo padre, luego modifica la casilla 
+        donde estaba el astronauta por una casilla libre, despues  
+        inserta los obtaculos y objetos en el mapa, y para terminar
+        añade la nueva posicion del astronauta al mapa
+
+        Args
+        - head (searchTree): nodo padre
+        - nuevaPosicionAstronauta (tupla): coordenada de la nueva posicion del astronauta ej:. (a, b)
+
+        Return
+        - Mapa actualizado (list[list])
+        """
         newMapa = copy.deepcopy(head.mapa)
 
         a, b = head.posicionActual # La posicion anterior del astronauta se cambia por un camino libre
@@ -46,7 +64,21 @@ def actualizarMapa(head: searchTree, nuevaPosicionAstronauta: tuple):
 
         return newMapa
 
-def cantidadMuestrasCientificas(head: searchTree, posicion: tuple):
+def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
+    """
+    Dada una nueva posicion a la que se va a mover el astronauta
+    Si en esa posicion hay una muestra cientifica, se modifica
+    la lista de objetos, para cambiar el atributo de la muestra cientifica
+    por recogida, y luego se aumenta el contador de muestras cientificas
+    en 1
+
+    Args
+    - head (searchTree): nodo padre
+    - posicion (tupla): nueva posicion a la que se movera el astronauta
+
+    Return
+    - cantidad de muestras cientificas (int)
+    """
     x, y = posicion
     if head.mapa[x][y] == 6:
         for i in range(len(listaObjetos)):
@@ -58,13 +90,35 @@ def cantidadMuestrasCientificas(head: searchTree, posicion: tuple):
     else: 
         return head.muestras
 
-def totalEnergia(head: searchTree):
+def totalEnergia(head: searchTree) -> float:
+    """
+    Se verifica si el nodo padre tiene nave, en caso de que
+    la tenga se aumenta en .5 la energia en caso contrario en 1 
+  
+    Args 
+    - head (searchTree): nodo padre 
+
+    Return 
+    - cantidad total de energia gastada (float)
+    """
     if head.tieneNave == False: 
         return head.energiaTotalGastada + 1
     else: 
         return head.energiaTotalGastada + 0.5
 
-def nosMontamosEnNave(head: searchTree, posicion: tuple):
+def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
+    """
+    Verifica si en la nueva posicion se encuentra la nave, en caso 
+    de que este la nave, se cambia el atributo a True, en caso
+    contrario a False. 
+
+    Args
+    - head (searchTree): nodo padre
+    - posicion (tupla): nueva posicion del astronauta
+
+    Return
+    - (bool)
+    """
     x, y = posicion
     if head.tieneNave==True and head.movimientosNave>=1:
         return True
@@ -73,21 +127,34 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple):
     else:
         return False
 
-def movimientosRestantesNave(head: searchTree):
+def movimientosRestantesNave(head: searchTree) -> int:
+    """
+    Cuenta cuantos movimientos disponibles tiene la nave
+
+    Args
+    - head (searchTree): nodo padre
+
+    Return
+    - (int)
+    """
     if head.tieneNave == True:
         return head.movimientosNave - 1
     else:
         return head.movimientosNave
 
-def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple):
+def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) -> None:
     """
-    Se crea y añade un nodo hijo al arbol de busqueda
+    Se crea y añade un nodo hijo al nodo padre
+
+    Args
+    - nodo (searchTree): nodo padre
+    - direccion (str): up | left | down | right
+    - nuevaPosicionAstronauta (tupla): coordenadas de la nueva posicion del astronauta ej:. (a, b)
     """
 
     newMapa = actualizarMapa(nodo, nuevaPosicionAstronauta)
     posicion = nuevaPosicionAstronauta
     muestras = cantidadMuestrasCientificas(nodo, nuevaPosicionAstronauta)
-    print(f"cantidad de muestras cientificas recogidas: {nodo.muestras}")
     energiaGastada = totalEnergia(nodo)
     tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
     movimientosNave = movimientosRestantesNave(nodo)
@@ -95,13 +162,17 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple):
     hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo)
     nodo.añadirHijo(hijo)
 
-def traerHijos(nodo: searchTree, direcciones: dict): 
+def traerHijos(nodo: searchTree, direcciones: dict) -> None: 
     """
     Busca las casillas a las que el astronauta   
-    puede moverser, luego verifica si en el pasado ya paso por la casilla,
-    si ya paso y el estado del nodo hijo es igual al padre, se detiene.
-    Si sigue, crea un hijo y lo añade al nodo, 
+    puede moverse, luego verifica si en el pasado ya paso por la casilla,
+    si ya paso y el estado del nodo hijo es igual al padre o nodo encontrado, se detiene.
+    Si sigue, crea un hijo y lo añade al nodo padre.
     los hijos ya tienen el movimiento y posicion realizada.
+
+    Args
+    - nodo (searchTree): nodo padre
+    - direcciones (dict): diccionario con los movimientos permitidos en el juego
     """
     for i in range(1, len(direcciones) + 1):
         posicionAstronauta: tuple = nodo.posicionActual
@@ -110,16 +181,17 @@ def traerHijos(nodo: searchTree, direcciones: dict):
             nuevaPosicionAstronauta = nuevaPosicion(nodo.posicionActual, direcciones[i])
 
             bool, nodoSimilar = nodo.yaPasePorAqui(nodo, nuevaPosicionAstronauta)
-            print("Ya pase por aqui en mi rama?: ", bool, nodoSimilar)
             if bool:
                 if nodo.esMismoEstado(nodo, nodoSimilar): 
-                    print("Es mismo estado: ", nodo.esMismoEstado(nodo, nodoSimilar))
                     pass # Ya no hace nada se detiene la rama
                 else: crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta) # El estado no es el mismo entonces puede seguir
             else:
                 crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta)
 
-def posicionObjetos():
+def posicionObjetos() -> None:
+    """
+    Almacena en una lista la posicion de los obstaculos y objetos en el mapa
+    """
     lista = list()
     for i in range(10):
         for j in range(10):
@@ -148,8 +220,6 @@ def expandir(nodo: searchTree, direcciones: dict):
     y para terminar saca el nodo actual y lo mete a la cola de salida
     """
     traerHijos(nodo, direcciones) # expandir
-    nodo.imprimirPosicionHijos()
-    print("\n\n")
     if nodo.esMeta():
         SOLUCION(nodo, solucion)
         print("llegue a la meta"); 
@@ -164,8 +234,13 @@ def salirBucle():
     key = False
 
 def resolver_amplitud(Mapa: list[list]) -> list:
+    """
+    Funcion principal que pone en marcha el 
+    algoritmo de busqueda por amplitud
+    """
     while key:
         primerElemento: searchTree = colaEntrada.popleft()
+        
         primerElemento.printMapa()
         primerElemento.imprimirInformacion()
 
