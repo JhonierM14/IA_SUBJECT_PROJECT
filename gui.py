@@ -5,6 +5,9 @@ from tkinter import *
 from PIL import Image, ImageTk 
 from tkinter import filedialog
 
+# imports
+from amplitud import resolver_amplitud
+
 # Ventana general
 
 ventana = tk.Tk()
@@ -153,7 +156,30 @@ def iniciar_tablero():
                     y = i * celda + celda // 2
                     canvas.create_image(x, y, image=imagenes[valor])
 
-        
+    # --------------------------
+    # Verificar tipo de búsqueda
+    # --------------------------
+    tipo_busqueda = despegable.get()
+    algoritmo = subOpciones.get()
+
+    camino = []
+
+    if tipo_busqueda == "Búsqueda No informada":
+        if algoritmo == "Amplitud":
+            camino = resolver_amplitud(ventana.matriz)
+        elif algoritmo == "Costo uniforme":
+            camino = [] # resolver_costo_uniforme(ventana.matriz)
+        elif algoritmo == "Profundidad evitando ciclo":
+            camino = [] # resolver_profundidad(ventana.matriz)
+
+    for fila, columna in camino:
+        x = columna * celda + celda // 2
+        y = fila * celda + celda // 2
+
+        # Se dibuja un círculo rojo como ejemplo de ruta
+        canvas.create_oval(x-10, y-10, x+10, y+10, fill='red')
+
+
 botonTablero = tk.Button(ventana_bienvenida, text="START", command=iniciar_tablero)
 botonTablero.place(x=365, y=550)
 
