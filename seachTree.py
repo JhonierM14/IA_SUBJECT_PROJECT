@@ -23,18 +23,16 @@ class searchTree:
             return True
         else: False
 
-    def yaPasePorAqui(self, head, auxHead, nuevaPosicionAstronauta) -> tuple[bool, object]:
+    def yaPasePorAqui(self, nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
         """
         Verifica si el astronauta ya paso por la casilla
         """
-        nP = auxHead.nodoPadre
-        if nP == None: 
-            return (False, None)
+        if nodoPadre == None:
+            return (False, nodoPadre)
+        elif nodoPadre.posicionActual == nuevaPosicionAstronauta:
+            return (True, nodoPadre)
         else:
-            if head.posicionActual==nP.posicionActual or nuevaPosicionAstronauta==nP.posicionActual:
-                return (True, nP)
-            else:
-                return self.yaPasePorAqui(head, nP, nuevaPosicionAstronauta)
+            return self.yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
         
     def esMismoEstado(self, head, nodoCola):
         if head.tieneNave == nodoCola.tieneNave and head.muestras==nodoCola.muestras:

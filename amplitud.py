@@ -5,6 +5,15 @@ import time
 import copy
 
 def SOLUCION(head: searchTree, solucion: list):
+    """
+    Añade recursivamente los operadores realizados
+    desde el ultimo de una rama, hasta el nodo 
+    raiz o nodo padre del arbol
+    
+    Args
+    - head: ultimo nodo generado en la solucion
+    - solucion: lista donde se guardaran los operadores
+    """    
     if head.nodoPadre != None:
         solucion.append(head.operadorRealizado)
         SOLUCION(head.nodoPadre, solucion)
@@ -100,7 +109,7 @@ def traerHijos(nodo: searchTree, direcciones: dict):
         if nodo.puedoMoverme(direcciones[i], posicionAstronauta):
             nuevaPosicionAstronauta = nuevaPosicion(nodo.posicionActual, direcciones[i])
 
-            bool, nodoSimilar = nodo.yaPasePorAqui(nodo, nodo, nuevaPosicionAstronauta)
+            bool, nodoSimilar = nodo.yaPasePorAqui(nodo, nuevaPosicionAstronauta)
             print("Ya pase por aqui en mi rama?: ", bool, nodoSimilar)
             if bool:
                 if nodo.esMismoEstado(nodo, nodoSimilar): 
@@ -194,3 +203,7 @@ direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 solucion = []
 
 key = True
+
+resolver_amplitud(Mapa)
+print(solucion)
+
