@@ -122,7 +122,6 @@ def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
         for i in range(len(listaObjetos)):
             if listaObjetos[i].posicion == (x, y):
                 listaObjetos[i].recogido = True
-                print(f"Muestra recogida en coordenada: {x, y}")
 
         return head.muestras + 1
     else: 
@@ -283,9 +282,9 @@ def resolver_amplitud(Mapa: list[list]) -> list:
     while key:
         primerElemento: searchTree = colaEntrada.popleft()
 
-        primerElemento.printMapa()
-        primerElemento.imprimirInformacion()
-        print("\n\n----------------------------------------")
+        # primerElemento.printMapa()
+        # primerElemento.imprimirInformacion()
+        # print("\n\n----------------------------------------")
 
         expandir(primerElemento, direcciones)
 
@@ -323,7 +322,8 @@ solucion = []
 
 key: bool = True
 
-start: float = time.time()
+
+start: float = time.time(); 
 resolver_amplitud(Mapa)
 end: float = time.time()
 

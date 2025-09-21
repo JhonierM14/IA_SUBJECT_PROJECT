@@ -1,7 +1,7 @@
 import time
 
 class searchTree:
-    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, profundidadActual: int = 0):
+    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None):
         self.mapa = mapa
         self.posicionActual = posicionActual
         self.muestras = muestras
@@ -11,7 +11,6 @@ class searchTree:
         self.operadorRealizado = operadorRealizado
         self.hijos = hijos
         self.nodoPadre = nodoPadre
-        self.profundidadActual = profundidadActual
 
     def posicionAstronauta(self):
         """Busca la posicion del astronauta en el mapa y la añade al objeto creado invocador"""
@@ -106,3 +105,5 @@ class searchTree:
             print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}")
         else:
             print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
+
+            
