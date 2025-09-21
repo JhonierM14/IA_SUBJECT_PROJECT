@@ -5,6 +5,7 @@ from tkinter import *
 from PIL import Image, ImageTk 
 from tkinter import filedialog
 from amplitud import resolver_amplitud
+from costoUniforme import resolver_uniforme
 
 
 # Ventana general
@@ -175,9 +176,11 @@ def iniciar_tablero():
             if algoritmo == "Amplitud":
                 camino = resolver_amplitud(ventana.matriz)
             elif algoritmo == "Costo uniforme":
-                camino = [] # resolver_costo_uniforme(ventana.matriz)
+                camino = resolver_uniforme(ventana.matriz)
             elif algoritmo == "Profundidad evitando ciclo":
                 camino = [] # resolver_profundidad(ventana.matriz)
+
+        
                 
         ventana.camino = camino
  

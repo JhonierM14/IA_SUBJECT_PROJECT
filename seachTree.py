@@ -12,29 +12,43 @@ class searchTree:
         self.hijos = hijos
         self.nodoPadre = nodoPadre
 
+    def setTieneNave(self, boolean):
+        self.tieneNave = boolean
+
+    def getEnergiaTotalGastada(self):
+        return self.energiaTotalGastada
+    
     def posicionAstronauta(self):
-        """Busca la posicion del astronauta en el mapa y la añade al objeto creado invocador"""
         for i in range(10):
             for j in range(10):
                 if self.mapa[i][j] == 2:
                     self.posicionActual = (i, j)
 
     def esMeta(self):
-        """verifica si ya se llego a la meta"""
         if self.muestras == 3:
             return True
         else: False
+
+    def yaPasePorAqui(self, nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
+        """
+        Verifica si el astronauta ya paso por la casilla
+        """
+        if nodoPadre == None:
+            return (False, nodoPadre)
+        elif nodoPadre.posicionActual == nuevaPosicionAstronauta:
+            return (True, nodoPadre)
+        else:
+            return self.yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
+        
+    def esMismoEstado(self, head, nodoCola):
+        if head.tieneNave == nodoCola.tieneNave and head.muestras==nodoCola.muestras:
+            return True
+        else: 
+            return False # Si se retorna False, se crea el hijo
         
     def puedoMoverme(self, direccion: str, posicionAstronauta: tuple) -> bool:
         """
         Verifica si un astronauta puede moverse en una direccion
-
-        Args
-        - direccion (str): direccion a la que estoy verificando si puedo moverme
-        - posicionAstronauta (tupla): la posicion actual del astronauta
-
-        Return
-        - Represeta si se puede desplazar el astronauta en la direccion (bool)
         """
         x, y = posicionAstronauta
 
@@ -77,9 +91,10 @@ class searchTree:
         if self.nodoPadre != None:
             return 1 + self.nodoPadre.profundidadArbol()
 
-    def printMapa(self) -> None:
+
+    def printMapa(self):
         """
-        Imprime el mapa actual del nodo
+        Imprime el mapa
         """
         for i in range(10):
             line = ""
@@ -88,22 +103,18 @@ class searchTree:
                     line += (f"| {self.mapa[i][j]} |")
                 else:
                     line += (f" {self.mapa[i][j]} |")
-            print(line)
-        print("-------------------------------------------------\n")
+            #print(line)
+        #print("-------------------------------------------------\n")
 
-    def imprimirPosicionHijos(self) -> None:
-        """Imprime la posicion de los hijos"""
+    def imprimirPosicionHijos(self):
         hijos = ""
         for i in range(len(self.hijos)):
             x, y = self.hijos[i].posicionActual
             hijos += f"hijo {i + 1}: " + "(" + str(x) + ", " + str(y) + ")" + " | "
-        print(hijos)
+        #print(hijos)
 
-    def imprimirInformacion(self) -> None:
-        """Imprime la informacion del nodo"""
+    def imprimirInformacion(self):
         if self.nodoPadre == None:
             print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}")
         else:
             print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
-
-            
