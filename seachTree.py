@@ -1,7 +1,7 @@
 import time
 
 class searchTree:
-    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None):
+    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, profundidadActual: int = 0):
         self.mapa = mapa
         self.posicionActual = posicionActual
         self.muestras = muestras
@@ -11,6 +11,7 @@ class searchTree:
         self.operadorRealizado = operadorRealizado
         self.hijos = hijos
         self.nodoPadre = nodoPadre
+        self.profundidadActual = profundidadActual
 
     def posicionAstronauta(self):
         """Busca la posicion del astronauta en el mapa y la añade al objeto creado invocador"""
@@ -24,44 +25,6 @@ class searchTree:
         if self.muestras == 3:
             return True
         else: False
-
-    def yaPasePorAqui(self, nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
-        """
-        Verifica si el astronauta ya paso por la casilla, si el nodo padre actual es none
-        retorna (False, none), si el nodo padre actual tiene la misma posicion que la nueva
-        posicion del astronauta se retorna (True, nodoPadre), para el resto de casos sigue
-        buscando recursivamente
-
-        Args
-        - nodoPadre (searchTree): nodo padre
-        - nuevaPosicionAstronauta (tupla): nueva posicion del astronauta
-
-        Return 
-        - el primer argumento representa si ya se paso o no por la casilla, el segundo argumento el nodo con la misma posicion (tuple[bool, object])
-        """
-        if nodoPadre == None:
-            return (False, nodoPadre)
-        elif nodoPadre.posicionActual == nuevaPosicionAstronauta:
-            return (True, nodoPadre)
-        else:
-            return self.yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
-        
-    def esMismoEstado(self, head, nodoCola) -> bool:
-        """
-        Si se pasa por una casilla en la cual ya se estubo y el estado es igual para ambos
-        nodos se retorna True y la rama muere, en caso contraria sigue expandiendo.
-
-        Args
-        - head (searchTree): nodo padre
-        - nodoCola (searchTree): nodo encontrado con el que se compara el estado
-
-        Return
-        - Representa si es igual o no el estado de los nodos (bool)
-        """
-        if head.tieneNave == nodoCola.tieneNave and head.muestras==nodoCola.muestras:
-            return True
-        else: 
-            return False # Si se retorna False, se crea el hijo
         
     def puedoMoverme(self, direccion: str, posicionAstronauta: tuple) -> bool:
         """
@@ -97,6 +60,23 @@ class searchTree:
 
     def añadirHijo(self, hijo):
         self.hijos.append(hijo)
+
+    def profundidadArbol(self) -> int:
+        """
+        Calcula la profundidad del arbol con la siguiente idea:
+        
+        En teoria en la busqueda por amplitud todas ramas 
+        tienen la misma profundidad.\n
+        la profundidad se empieza a contar desde 0.
+        ej:. si solo esta el nodo padre la profundidad es 0.
+
+        Return
+        - Representa la profundidad del arbol (int)
+        """
+        if self.nodoPadre == None:
+            return 0
+        if self.nodoPadre != None:
+            return 1 + self.nodoPadre.profundidadArbol()
 
     def printMapa(self) -> None:
         """
