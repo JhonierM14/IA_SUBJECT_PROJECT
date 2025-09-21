@@ -88,8 +88,8 @@ class searchTree:
                     line += (f"| {self.mapa[i][j]} |")
                 else:
                     line += (f" {self.mapa[i][j]} |")
-            print(line)
-        print("-------------------------------------------------\n")
+            #print(line)
+        #print("-------------------------------------------------\n")
 
     def imprimirPosicionHijos(self) -> None:
         """Imprime la posicion de los hijos"""
@@ -97,7 +97,7 @@ class searchTree:
         for i in range(len(self.hijos)):
             x, y = self.hijos[i].posicionActual
             hijos += f"hijo {i + 1}: " + "(" + str(x) + ", " + str(y) + ")" + " | "
-        print(hijos)
+        #print(hijos)
 
     def imprimirInformacion(self) -> None:
         """Imprime la informacion del nodo"""
