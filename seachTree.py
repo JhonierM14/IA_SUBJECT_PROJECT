@@ -68,6 +68,7 @@ class searchTree:
     def añadirHijo(self, hijo):
         self.hijos.append(hijo)
 
+
     def printMapa(self):
         """
         Imprime el mapa
@@ -79,15 +80,15 @@ class searchTree:
                     line += (f"| {self.mapa[i][j]} |")
                 else:
                     line += (f" {self.mapa[i][j]} |")
-            print(line)
-        print("-------------------------------------------------\n")
+            #print(line)
+        #print("-------------------------------------------------\n")
 
     def imprimirPosicionHijos(self):
         hijos = ""
         for i in range(len(self.hijos)):
             x, y = self.hijos[i].posicionActual
             hijos += f"hijo {i + 1}: " + "(" + str(x) + ", " + str(y) + ")" + " | "
-        print(hijos)
+        #print(hijos)
 
     def imprimirInformacion(self):
         if self.nodoPadre == None:
