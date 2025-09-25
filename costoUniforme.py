@@ -92,14 +92,9 @@ def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
 
 def totalEnergia(head: searchTree, posicion: tuple, tieneNave: bool) -> float:
     """
-    Se verifica si el nodo padre tiene nave, en caso de que
-    la tenga se aumenta en .5 la energia en caso contrario en 1 
-  
-    Args 
-    - head (searchTree): nodo padre 
-
-    Return 
-    - cantidad total de energia gastada (float)
+    Se le agregaron los costos segun el terreno, 3 para rocoso y 5 para volcanico, 
+    tambien se agrego el bool tieneNave de la funcion crearHijo, ya que si se extrae el atributo "tieneNave"
+    de head, este nos daria la informacion del nodo padre, la cual podria ser diferente a la del hijo que se esta creando.
     """
     x, y = posicion
     if tieneNave == False:
@@ -136,13 +131,9 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
 
 def movimientosRestantesNave(head: searchTree, tieneNave: bool) -> int:
     """
-    Cuenta cuantos movimientos disponibles tiene la nave
-
-    Args
-    - head (searchTree): nodo padre
-
-    Return
-    - (int)
+    Se modifico la funcion para que reciba el bool tieneNave que se crea en la funcion crearHijo,
+    ya que si se extrae el atributo "tieneNave" de head, este nos daria la informacion del nodo padre, la cual
+    podria ser diferente a la del hijo que se esta creando.
     """
     if tieneNave == True:
         return head.movimientosNave - 1
@@ -212,14 +203,14 @@ def posicionObjetos() -> None:
                 lista.append(Objeto(6, "muestra cientifica", (i, j), False))
     return lista
 
-def meterHijosEnlistaEntrada(cola: list, hijos: list):
+def meterHijosEnlistaEntrada(lista: list, hijos: list):
   for i in range(len(hijos)):  
-    cola.append(hijos[i])
+    lista.append(hijos[i])
 
-def meterNodoColaSalida(cola: list, nodo):
-   cola.append(nodo)
+def meterNodoListaSalida(lista: list, nodo):
+   lista.append(nodo)
 
-def menorEnergia(cola: list) -> searchTree:
+def menorEnergia(lista: list) -> searchTree:
     """
     Busca el nodo con menor energia gastada
     en la lista de entrada, lo elimina de la lista
@@ -232,11 +223,11 @@ def menorEnergia(cola: list) -> searchTree:
     - nodo con menor energia (searchTree)
     """
     menor = float('inf')
-    for i in range(len(cola)):
-        if cola[i].getEnergiaTotalGastada() < menor:
-            menor = cola[i].getEnergiaTotalGastada()
+    for i in range(len(lista)):
+        if lista[i].getEnergiaTotalGastada() < menor:
+            menor = lista[i].getEnergiaTotalGastada()
             indice = i
-    return cola.pop(indice)
+    return lista.pop(indice)
 
 def expandir(nodo: searchTree, direcciones: dict):
     """
@@ -253,7 +244,7 @@ def expandir(nodo: searchTree, direcciones: dict):
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
-        meterNodoColaSalida(colaSalida, nodo)
+        meterNodoListaSalida(listaSalida, nodo)
 
 def salirBucle():
     """Llave de salida del bucle"""
@@ -266,11 +257,11 @@ def resolver_uniforme(Mapa: list[list]) -> list:
     algoritmo de busqueda por costo uniforme
     """
     while key:
-        primerElemento: searchTree = menorEnergia(listaEntrada)
-        
-        primerElemento.printMapa()
-        primerElemento.imprimirInformacion()
-        expandir(primerElemento, direcciones)
+        menorNodo: searchTree = menorEnergia(listaEntrada)
+
+        menorNodo.printMapa()
+        menorNodo.imprimirInformacion()
+        expandir(menorNodo, direcciones)
 
     if key==False:
         solucion.reverse()
@@ -295,7 +286,7 @@ Tree = searchTree(Mapa)
 Tree.posicionAstronauta()
 
 listaEntrada = list()
-colaSalida = list()
+listaSalida = list()
 
 listaEntrada.append(Tree)
 
@@ -311,7 +302,7 @@ start: float = time.time();
 resolver_uniforme(Mapa)
 end: float = time.time()
 
-print(f"La cantidad de nodos expandidos es: {len(colaSalida)}")
+print(f"La cantidad de nodos expandidos es: {len(listaSalida)}")
 print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
 print(f"La función tardó {end - start:.4f} segundos")
 print(solucion)
