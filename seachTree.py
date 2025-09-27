@@ -12,6 +12,12 @@ class searchTree:
         self.hijos = hijos
         self.nodoPadre = nodoPadre
 
+    def setTieneNave(self, boolean):
+        self.tieneNave = boolean
+
+    def getEnergiaTotalGastada(self):
+        return self.energiaTotalGastada
+    
     def posicionAstronauta(self):
         """Busca la posicion del astronauta en el mapa y la añade al objeto creado invocador"""
         for i in range(10):
