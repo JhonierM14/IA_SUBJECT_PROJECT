@@ -4,7 +4,10 @@ from tkinter import ttk
 from tkinter import *
 from PIL import Image, ImageTk 
 from tkinter import filedialog
+from tkinter import messagebox
 from amplitud import resolver_amplitud
+from costoUniforme import resolver_uniforme
+from profundidad import resolver_profundidad
 
 
 # Ventana general
@@ -95,6 +98,7 @@ def cargar_mundo():
         ventana.matriz = matriz
         print("Mundo cargado")
         print("Matriz:", matriz)
+    
         
 #--------------------
 # Imagenes
@@ -126,9 +130,10 @@ def actualizarOpciones():
     seleccion = despegable.get()
     if seleccion in opcionesBusqueda:
         subOpciones['values'] = opcionesBusqueda[seleccion]
-        subOpciones.current(0)
+        subOpciones.set("")  
     else:
         subOpciones['values'] = []
+        subOpciones.set("")
         
         
 # Primer lista despegable
@@ -147,41 +152,55 @@ subOpciones.place(x=300, y=500)
 #----------------------------------
 # Boton Start
 #----------------------------------
+
+def muestras():
+    cuadricula()
+    posiciones = []
+    for i, fila in enumerate(ventana.matriz):
+        for j, valor in enumerate(fila):              
+            if valor == "6":
+                posiciones.append((i,j))
+    print("Posiciones de las muestras:", posiciones)
+    return posiciones
+
+
 def iniciar_tablero():
-    cuadricula()   
+    cuadricula()
     for i, fila in enumerate(ventana.matriz):
         for j, valor in enumerate(fila):
-                if valor in imagenes:
-                    x = j * celda + celda // 2
-                    y = i * celda + celda // 2
-                    mov = canvas.create_image(x, y, image=imagenes[valor])                    
-                    if valor == "2":
-                        ventana.astronauta = mov
-                        ventana.astronauta_fila = i
-                        ventana.astronauta_col = j
-                        print(f"Austronauta en posicion: ({i},{j})")
+            if valor in imagenes:
+                x = j * celda + celda // 2
+                y = i * celda + celda // 2
+                mov = canvas.create_image(x, y, image=imagenes[valor])
+                if valor == "2":
+                    ventana.astronauta = mov
+                    ventana.astronauta_fila = i
+                    ventana.astronauta_col = j
+                    print(f"Austronauta en posicion: ({i},{j})")
+                if valor == "5":
+                    ventana.nave_id = mov
 
+    # Verificar selección de algoritmo
+    tipo_busqueda = despegable.get()
+    algoritmo = subOpciones.get()
 
-# ----------------------------
-# Verificar el tipo de busqueda
-# ----------------------------
+    if not tipo_busqueda or not algoritmo:
+        messagebox.showwarning("Selección requerida", "Por favor seleccione el tipo y algoritmo de búsqueda antes de continuar.")
+        ventana.camino = []
+        return
 
-        tipo_busqueda = despegable.get()
-        algoritmo = subOpciones.get()
+    camino = []
+    if tipo_busqueda == "Búsqueda No informada":
+        if algoritmo == "Amplitud":
+            camino = resolver_amplitud(ventana.matriz)
+        elif algoritmo == "Costo uniforme":
+            camino = resolver_uniforme(ventana.matriz)
+        elif algoritmo == "Profundidad evitando ciclo":
+            camino = resolver_profundidad(ventana.matriz)
 
-        camino = []
-
-        if tipo_busqueda == "Búsqueda No informada":
-            if algoritmo == "Amplitud":
-                camino = resolver_amplitud(ventana.matriz)
-            elif algoritmo == "Costo uniforme":
-                camino = [] # resolver_costo_uniforme(ventana.matriz)
-            elif algoritmo == "Profundidad evitando ciclo":
-                camino = [] # resolver_profundidad(ventana.matriz)
-                
-        ventana.camino = camino
+    ventana.camino = camino
  
-
+# Funcion de movimiento 
 def recorrer_camino():
     if not hasattr(ventana, "camino") or not ventana.camino:
         print("No hay camino calculado todavía.")
@@ -191,6 +210,10 @@ def recorrer_camino():
     fila = ventana.astronauta_fila
     columna = ventana.astronauta_col
     
+    usando_nave = False
+    pasos_nave = 0
+    nave_mov = None
+
     # Iniciar la lista de coordenadas con la posición inicial
     coordenadas = [(fila, columna)]
     movimientos = {
@@ -199,8 +222,8 @@ def recorrer_camino():
         "left": (0, -1),
         "right": (0, 1)
     }
-    
-    #  Solo muestra el camino en la consola
+
+    # Solo muestra el camino en la consola
     for direccion in ventana.camino:
             df, dc = movimientos.get(direccion.lower(), (0, 0))
             # Actualizar la posición
@@ -210,21 +233,22 @@ def recorrer_camino():
             
     print("Camino recorrido:", coordenadas)
     print("Movimientos:", ventana.camino)
-    
+
     fila = ventana.astronauta_fila
     columna = ventana.astronauta_col
     
     # Movimiento visual del astronauta
     def mover_astronauta(i=0):
-        nonlocal fila, columna
+        nonlocal fila, columna, usando_nave, pasos_nave, nave_mov
         
         if i >= len(ventana.camino):
+            messagebox.showinfo("Reporte", "Por ahora una ventanita :b")
             return
-
+        
         # Obtener la direccion actual del movimiento
         direccion = ventana.camino[i]
         df, dc = movimientos.get(direccion.lower(), (0, 0))
-        
+            
         # Actualizar la posición del astronauta
         fila += df
         columna += dc
@@ -232,17 +256,57 @@ def recorrer_camino():
         # Coordenadas en pixeles para el canva
         x = columna * celda + celda // 2
         y = fila * celda + celda // 2
-        
+            
         canvas.coords(ventana.astronauta, x, y)
+        canvas.tag_raise(ventana.astronauta)
+                
+        if ventana.matriz[fila][columna] == "5" and not usando_nave:
+            usando_nave = True
+            pasos_nave = 20
+            # Eliminar la nave original
+            if hasattr(ventana, "nave_id"):
+                canvas.delete(ventana.nave_id)
+            nave_mov = canvas.create_image(x, y, image=imagenes["5"])
+        if usando_nave and pasos_nave > 0:
+            canvas.coords(nave_mov, x, y)
+            pasos_nave -= 1
+            if pasos_nave == 0:
+                usando_nave = False
+            
+        if ventana.matriz[fila][columna] == "6":
+            x1, y1 = columna * celda, fila * celda
+            x2, y2 = x1 + celda, y1 + celda
+                
+                # Crear rectángulo amarillo
+            rect = canvas.create_rectangle(x1, y1, x2, y2, fill="yellow", outline="black")
+                
+                # Enviar el rectángulo al fondo 
+            canvas.tag_lower(rect, "all")  
+                
         ventana.after(500, mover_astronauta, i + 1)
-        
+
     mover_astronauta()
 
-botonTablero = tk.Button(ventana_bienvenida, text="START", command=iniciar_tablero)
-botonTablero.place(x=365, y=550)
+# Crear el botón START desactivado
+botonStart = tk.Button(ventana_bienvenida, text="START", command=iniciar_tablero, state="disabled")
+botonStart.place(x=365, y=550)
+
+# Función para habilitar/deshabilitar el botón START
+def actualizar_estado_start(*args):
+    tipo_busqueda = despegable.get()
+    algoritmo = subOpciones.get()
+    if tipo_busqueda and algoritmo:
+        botonStart.config(state="normal")
+    else:
+        botonStart.config(state="disabled")
+
+despegable.bind("<<ComboboxSelected>>", actualizar_estado_start)
+subOpciones.bind("<<ComboboxSelected>>", actualizar_estado_start)
 
 botonTablero = tk.Button(ventana_tablero, text="RECORRER", command=recorrer_camino)
-botonTablero.place(x=365, y=580)
+botonTablero.place(x=400, y=580)
 
+botonTablero = tk.Button(ventana_tablero, text="REGRESAR", command=bienvenida)
+botonTablero.place(x=300, y=580)
 bienvenida()
 ventana.mainloop()

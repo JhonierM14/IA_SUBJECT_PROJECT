@@ -20,44 +20,6 @@ def SOLUCION(head: searchTree, solucion: list) -> None:
     else:
         pass
 
-def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
-    """
-    Verifica si el astronauta ya paso por la casilla, si el nodo padre actual es none
-    retorna (False, none), si el nodo padre actual tiene la misma posicion que la nueva
-    posicion del astronauta se retorna (True, nodoPadre), para el resto de casos sigue
-    buscando recursivamente
-
-    Args
-    - nodoPadre (searchTree): nodo padre
-    - nuevaPosicionAstronauta (tupla): nueva posicion del astronauta
-
-    Return 
-    - el primer argumento representa si ya se paso o no por la casilla, el segundo argumento el nodo con la misma posicion (tuple[bool, object])
-    """
-    if nodoPadre == None:
-        return (False, nodoPadre)
-    elif nodoPadre.posicionActual == nuevaPosicionAstronauta:
-        return (True, nodoPadre)
-    else:
-        return yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
-
-def esMismoEstado(nodo, nodoCola) -> bool:
-    """
-    Si se pasa por una casilla en la cual ya se estubo y el estado es igual para ambos
-    nodos se retorna True y la rama muere, en caso contraria sigue expandiendo.
-
-    Args
-    - nodo (searchTree): nodo padre
-    - nodoCola (searchTree): nodo encontrado con el que se compara el estado
-
-    Return
-    - Representa si es igual o no el estado de los nodos (bool)
-    """
-    if nodo.tieneNave == nodoCola.tieneNave and nodo.muestras==nodoCola.muestras:
-        return True
-    else: 
-        return False # Si se retorna False, se crea el hijo
-
 def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     """
     Retorna una tupla con la posicion actual del astronauta
@@ -122,24 +84,27 @@ def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
         for i in range(len(listaObjetos)):
             if listaObjetos[i].posicion == (x, y):
                 listaObjetos[i].recogido = True
+                #print(f"Muestra recogida en coordenada: {x, y}")
 
         return head.muestras + 1
     else: 
         return head.muestras
 
-def totalEnergia(head: searchTree) -> float:
+def totalEnergia(head: searchTree, posicion: tuple, tieneNave: bool) -> float:
     """
-    Se verifica si el nodo padre tiene nave, en caso de que
-    la tenga se aumenta en .5 la energia en caso contrario en 1 
-  
-    Args 
-    - head (searchTree): nodo padre 
-
-    Return 
-    - cantidad total de energia gastada (float)
+    Se le agregaron los costos segun el terreno, 3 para rocoso y 5 para volcanico, 
+    tambien se agrego el bool tieneNave de la funcion crearHijo, ya que si se extrae el atributo "tieneNave"
+    de head, este nos daria la informacion del nodo padre, la cual podria ser diferente a la del hijo que se esta creando.
     """
-    if head.tieneNave == False: 
-        return head.energiaTotalGastada + 1
+    x, y = posicion
+    if tieneNave == False:
+        if head.mapa[x][y] == 3:
+            return head.energiaTotalGastada + 3
+        elif head.mapa[x][y] == 4:
+            return head.energiaTotalGastada + 5
+        else:
+            return head.energiaTotalGastada + 1
+    
     else: 
         return head.energiaTotalGastada + 0.5
 
@@ -159,22 +124,18 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
     x, y = posicion
     if head.tieneNave==True and head.movimientosNave>=1:
         return True
-    elif head.tieneNave==False and head.mapa[x][y] == 5:
+    elif head.tieneNave==False and head.mapa[x][y] == 5: 
         return True
     else:
         return False
 
-def movimientosRestantesNave(head: searchTree) -> int:
+def movimientosRestantesNave(head: searchTree, tieneNave: bool) -> int:
     """
-    Cuenta cuantos movimientos disponibles tiene la nave
-
-    Args
-    - head (searchTree): nodo padre
-
-    Return
-    - (int)
+    Se modifico la funcion para que reciba el bool tieneNave que se crea en la funcion crearHijo,
+    ya que si se extrae el atributo "tieneNave" de head, este nos daria la informacion del nodo padre, la cual
+    podria ser diferente a la del hijo que se esta creando.
     """
-    if head.tieneNave == True:
+    if tieneNave == True:
         return head.movimientosNave - 1
     else:
         return head.movimientosNave
@@ -191,13 +152,13 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) 
 
     newMapa = actualizarMapa(nodo, nuevaPosicionAstronauta)
     posicion = nuevaPosicionAstronauta
-    muestras = cantidadMuestrasCientificas(nodo, nuevaPosicionAstronauta)
-    energiaGastada = totalEnergia(nodo)
-    tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
-    movimientosNave = movimientosRestantesNave(nodo)
+    muestras = cantidadMuestrasCientificas(nodo, posicion)
+    tieneNave = nosMontamosEnNave(nodo, posicion)
+    movimientosNave = movimientosRestantesNave(nodo, tieneNave)
+    energiaGastada = totalEnergia(nodo, posicion, tieneNave)
 
     hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo)
-    return hijo
+    nodo.añadirHijo(hijo)
 
 def traerHijos(nodo: searchTree, direcciones: dict) -> None: 
     """
@@ -217,16 +178,13 @@ def traerHijos(nodo: searchTree, direcciones: dict) -> None:
         if nodo.puedoMoverme(direcciones[i], posicionAstronauta):
             nuevaPosicionAstronauta = nuevaPosicion(nodo.posicionActual, direcciones[i])
 
-            bool, nodoSimilar = yaPasePorAqui(nodo, nuevaPosicionAstronauta)
-            hijo = crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta) 
-            
+            bool, nodoSimilar = nodo.yaPasePorAqui(nodo, nuevaPosicionAstronauta)
             if bool:
-                if esMismoEstado(hijo, nodoSimilar): 
+                if nodo.esMismoEstado(nodo, nodoSimilar): 
                     pass # Ya no hace nada se detiene la rama
-                else: 
-                    nodo.añadirHijo(hijo) # El estado no es el mismo entonces puede seguir 
+                else: crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta) # El estado no es el mismo entonces puede seguir
             else:
-                nodo.añadirHijo(hijo)
+                crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta)
 
 def posicionObjetos() -> None:
     """
@@ -240,17 +198,36 @@ def posicionObjetos() -> None:
             elif Mapa[i][j] == 4:
                 lista.append(Objeto(4, "terreno volcanico", (i, j)))
             elif Mapa[i][j] == 5:
-                lista.append(Objeto(5, "nave", (i, j), False))
+                lista.append(Objeto(5, "nave", (i, j)))
             elif Mapa[i][j] == 6:
                 lista.append(Objeto(6, "muestra cientifica", (i, j), False))
     return lista
 
-def meterHijosEnColaEntrada(cola: deque, hijos: list):
+def meterHijosEnlistaEntrada(lista: list, hijos: list):
   for i in range(len(hijos)):  
-    cola.append(hijos[i])
+    lista.append(hijos[i])
 
-def meterNodoColaSalida(cola: deque, nodo):
-   cola.append(nodo)
+def meterNodoListaSalida(lista: list, nodo):
+   lista.append(nodo)
+
+def menorEnergia(lista: list) -> searchTree:
+    """
+    Busca el nodo con menor energia gastada
+    en la lista de entrada, lo elimina de la lista
+    y lo retorna
+
+    Args
+    - cola (list): lista de nodos
+
+    Return
+    - nodo con menor energia (searchTree)
+    """
+    menor = float('inf')
+    for i in range(len(lista)):
+        if lista[i].getEnergiaTotalGastada() < menor:
+            menor = lista[i].getEnergiaTotalGastada()
+            indice = i
+    return lista.pop(indice)
 
 def expandir(nodo: searchTree, direcciones: dict):
     """
@@ -266,27 +243,25 @@ def expandir(nodo: searchTree, direcciones: dict):
         print("llegue a la meta"); 
         salirBucle()
     else: 
-        meterHijosEnColaEntrada(colaEntrada, nodo.hijos)
-        meterNodoColaSalida(colaSalida, nodo)
+        meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
+        meterNodoListaSalida(listaSalida, nodo)
 
 def salirBucle():
     """Llave de salida del bucle"""
     global key
     key = False
 
-def resolver_amplitud(Mapa: list[list]) -> list:
+def resolver_uniforme(Mapa: list[list]) -> list:
     """
     Funcion principal que pone en marcha el 
-    algoritmo de busqueda por amplitud
+    algoritmo de busqueda por costo uniforme
     """
     while key:
-        primerElemento: searchTree = colaEntrada.popleft()
+        menorNodo: searchTree = menorEnergia(listaEntrada)
 
-        # primerElemento.printMapa()
-        # primerElemento.imprimirInformacion()
-        # print("\n\n----------------------------------------")
-
-        expandir(primerElemento, direcciones)
+        #menorNodo.printMapa()
+        #menorNodo.imprimirInformacion()
+        expandir(menorNodo, direcciones)
 
     if key==False:
         solucion.reverse()
@@ -310,28 +285,27 @@ listaObjetos = posicionObjetos()
 Tree = searchTree(Mapa)
 Tree.posicionAstronauta()
 
-colaEntrada = deque()
-colaSalida = deque()
+listaEntrada = list()
+listaSalida = list()
 
-colaEntrada.append(Tree)
+listaEntrada.append(Tree)
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 
 nodoSolucion: list = []
 solucion = []
 
-key: bool = True
-
-
+key = True
 
 if __name__ == "__main__":
-    start: float = time.time()
-    resolver_amplitud(Mapa)
+    start: float = time.time(); 
+    resolver_uniforme(Mapa)
     end: float = time.time()
     '''
-    print(f"La cantidad de nodos expandidos es: {len(colaSalida)}")
+    print(f"La cantidad de nodos expandidos es: {len(listaSalida)}")
     print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
     print(f"La función tardó {end - start:.4f} segundos")
     print(solucion)
+
     '''
 

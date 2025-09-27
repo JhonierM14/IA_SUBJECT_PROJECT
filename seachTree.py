@@ -12,6 +12,12 @@ class searchTree:
         self.hijos = hijos
         self.nodoPadre = nodoPadre
 
+    def setTieneNave(self, boolean):
+        self.tieneNave = boolean
+
+    def getEnergiaTotalGastada(self):
+        return self.energiaTotalGastada
+    
     def posicionAstronauta(self):
         for i in range(10):
             for j in range(10):
@@ -67,6 +73,23 @@ class searchTree:
 
     def añadirHijo(self, hijo):
         self.hijos.append(hijo)
+
+    def profundidadArbol(self) -> int:
+        """
+        Calcula la profundidad del arbol con la siguiente idea:
+        
+        En teoria en la busqueda por amplitud todas ramas 
+        tienen la misma profundidad.\n
+        la profundidad se empieza a contar desde 0.
+        ej:. si solo esta el nodo padre la profundidad es 0.
+
+        Return
+        - Representa la profundidad del arbol (int)
+        """
+        if self.nodoPadre == None:
+            return 0
+        if self.nodoPadre != None:
+            return 1 + self.nodoPadre.profundidadArbol()
 
 
     def printMapa(self):

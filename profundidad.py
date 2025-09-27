@@ -1,3 +1,4 @@
+
 from collections import deque
 from objeto import Objeto
 from seachTree import searchTree
@@ -245,12 +246,11 @@ def posicionObjetos() -> None:
                 lista.append(Objeto(6, "muestra cientifica", (i, j), False))
     return lista
 
-def meterHijosEnColaEntrada(cola: deque, hijos: list):
+def meterHijosEnPilaEntrada(cola: deque, hijos: list):
   for i in range(len(hijos)):  
     cola.append(hijos[i])
 
-def meterNodoColaSalida(cola: deque, nodo):
-   cola.append(nodo)
+
 
 def expandir(nodo: searchTree, direcciones: dict):
     """
@@ -260,27 +260,28 @@ def expandir(nodo: searchTree, direcciones: dict):
     y para terminar saca el nodo actual y lo mete a la cola de salida
     """
     traerHijos(nodo, direcciones) # expandir
+    nodosExpandidos.append(nodo)  # Registrar nodo expandido
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta"); 
+        print("llegue a la meta")
         salirBucle()
-    else: 
-        meterHijosEnColaEntrada(colaEntrada, nodo.hijos)
-        meterNodoColaSalida(colaSalida, nodo)
+    else:
+        meterHijosEnPilaEntrada(colaEntrada, nodo.hijos)
+    
 
 def salirBucle():
     """Llave de salida del bucle"""
     global key
     key = False
 
-def resolver_amplitud(Mapa: list[list]) -> list:
+def resolver_profundidad(Mapa: list[list]) -> list:
     """
     Funcion principal que pone en marcha el 
     algoritmo de busqueda por amplitud
     """
     while key:
-        primerElemento: searchTree = colaEntrada.popleft()
+        primerElemento: searchTree = colaEntrada.pop()
 
         # primerElemento.printMapa()
         # primerElemento.imprimirInformacion()
@@ -304,7 +305,6 @@ Mapa = [
             [0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
             [0, 1, 1, 1, 0, 0, 0, 0, 0, 1]
         ]
-
 listaObjetos = posicionObjetos()
 
 Tree = searchTree(Mapa)
@@ -320,18 +320,21 @@ direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 nodoSolucion: list = []
 solucion = []
 
+# Lista para registrar los nodos expandidos
+nodosExpandidos = []
+
 key: bool = True
-
-
 
 if __name__ == "__main__":
     start: float = time.time()
-    resolver_amplitud(Mapa)
+    resolver_profundidad(Mapa)
     end: float = time.time()
+    print(f"La cantidad de nodos expandidos es: {len(nodosExpandidos)}")
+    print("Posiciones de todos los nodos expandidos:")
+    for nodo in nodosExpandidos:
+        print(nodo.posicionActual)
     '''
-    print(f"La cantidad de nodos expandidos es: {len(colaSalida)}")
     print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
     print(f"La función tardó {end - start:.4f} segundos")
     print(solucion)
     '''
-
