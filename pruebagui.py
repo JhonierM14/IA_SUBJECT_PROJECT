@@ -262,9 +262,9 @@ def recorrer_camino():
             messagebox.showinfo(
                     "Resultados del Algoritmo",
                     f"Algoritmo: {ventana.algoritmo}\n"
-                    f"Nodos expandidos: {ventana.nodos_expand}\n"
-                    f"Profundidad del árbol: {ventana.profundidad}\n"
-                    f"Tiempo de cómputo: {tiempo_final - ventana.tiempo_inicio:.4f} segundos"
+                    #f"Nodos expandidos: {ventana.nodos_expand}\n"
+                    #f"Profundidad del árbol: {ventana.profundidad}\n"
+                   # f"Tiempo de cómputo: {tiempo_final - ventana.tiempo_inicio:.4f} segundos"
             )
             return
     
