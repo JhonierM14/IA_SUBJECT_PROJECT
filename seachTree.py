@@ -1,7 +1,7 @@
 import time
 
 class searchTree:
-    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None):
+    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, profundidad: int = 0):
         self.mapa = mapa
         self.posicionActual = posicionActual
         self.muestras = muestras
@@ -11,6 +11,7 @@ class searchTree:
         self.operadorRealizado = operadorRealizado
         self.hijos = hijos
         self.nodoPadre = nodoPadre
+        self.profundidad = profundidad
 
     def setTieneNave(self, boolean):
         self.tieneNave = boolean
