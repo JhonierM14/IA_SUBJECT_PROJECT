@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 
 # imports
-from amplitud import resolver_amplitud
+from avara import resolver_avara, resolver_avara_info
 
 # Ventana general
 
@@ -166,17 +166,45 @@ def iniciar_tablero():
 
     if tipo_busqueda == "Búsqueda No informada":
         if algoritmo == "Amplitud":
+            from amplitud import resolver_amplitud
             camino = resolver_amplitud(ventana.matriz)
         elif algoritmo == "Costo uniforme":
             camino = [] # resolver_costo_uniforme(ventana.matriz)
         elif algoritmo == "Profundidad evitando ciclo":
             camino = [] # resolver_profundidad(ventana.matriz)
+    elif tipo_busqueda == "Búsqueda Informada":
+        if algoritmo == "Avara":
+            movimientos, info = resolver_avara_info(ventana.matriz)
+            camino = movimientos
 
-    for fila, columna in camino:
-        x = columna * celda + celda // 2
-        y = fila * celda + celda // 2
+    # Para convertir la lista de movimientos a coordenadas
+    coords = []
+    if camino:
+        if isinstance(camino[0], str):
+            # posicion inicial del astronauta en la matriz
+            start_f, start_c = None, None
+            for i, fila_m in enumerate(ventana.matriz):
+                for j, val in enumerate(fila_m):
+                    if val == "2":
+                        start_f, start_c = i, j
+                        break
+                if start_f is not None:
+                    break
 
-        # Se dibuja un círculo rojo como ejemplo de ruta
+            if start_f is not None:
+                f, c = start_f, start_c
+                movimientos = {"up": (-1, 0), "down": (1, 0), "left": (0, -1), "right": (0, 1)}
+                for move in camino:
+                    df, dc = movimientos.get(move.lower(), (0, 0))
+                    f += df
+                    c += dc
+                    coords.append((f, c))
+        else:
+            coords = camino
+
+    for fila_c, columna_c in coords:
+        x = columna_c * celda + celda // 2
+        y = fila_c * celda + celda // 2
         canvas.create_oval(x-10, y-10, x+10, y+10, fill='red')
 
 
