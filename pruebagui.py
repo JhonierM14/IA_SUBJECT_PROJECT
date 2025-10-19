@@ -1,17 +1,15 @@
-# Interfaz grafica
+# Interfaz gráfica
 import tkinter as tk
-from tkinter import ttk
-from tkinter import *
-from PIL import Image, ImageTk 
-from tkinter import filedialog
-from tkinter import messagebox
+from tkinter import ttk, filedialog, messagebox
+from PIL import Image, ImageTk
+import time
+
+# Algoritmos de busqueda
 from amplitud import resolver_amplitud
 from costoUniforme import resolver_uniforme
-from profundidad import resolver_profundidad
-
+import profundidad
 
 # Ventana general
-
 ventana = tk.Tk()
 ventana.title("Smart Astronaut")
 ventana.geometry("800x700")
@@ -187,18 +185,36 @@ def iniciar_tablero():
     if not tipo_busqueda or not algoritmo:
         messagebox.showwarning("Selección requerida", "Por favor seleccione el tipo y algoritmo de búsqueda antes de continuar.")
         ventana.camino = []
+        ventana.nodos_expand = 0
+        ventana.profundidad = 0
         return
-
+        
     camino = []
+    profundidad_arbol = 0
+    tiempo_inicio = time.time()
+    
     if tipo_busqueda == "Búsqueda No informada":
         if algoritmo == "Amplitud":
             camino = resolver_amplitud(ventana.matriz)
+
         elif algoritmo == "Costo uniforme":
             camino = resolver_uniforme(ventana.matriz)
+            
         elif algoritmo == "Profundidad evitando ciclo":
-            camino = resolver_profundidad(ventana.matriz)
-
+            profundidad.nodosExpandidos = []
+            profundidad.nodoSolucion = []
+            profundidad.solucion = []
+            profundidad.key = True
+            
+            camino, nodos_expand_list = profundidad.resolver_profundidad(ventana.matriz)
+            ventana.nodos_expand = len(nodos_expand_list)
+            if profundidad.nodoSolucion:
+                profundidad_arbol= profundidad.nodoSolucion[0].profundidad
+                
     ventana.camino = camino
+    ventana.algoritmo = algoritmo
+    ventana.profundidad = profundidad_arbol
+    ventana.tiempo_inicio = tiempo_inicio
  
 # Funcion de movimiento 
 def recorrer_camino():
@@ -242,9 +258,16 @@ def recorrer_camino():
         nonlocal fila, columna, usando_nave, pasos_nave, nave_mov
         
         if i >= len(ventana.camino):
-            messagebox.showinfo("Reporte", "Por ahora una ventanita :b")
+            tiempo_final = time.time()
+            messagebox.showinfo(
+                    "Resultados del Algoritmo",
+                    f"Algoritmo: {ventana.algoritmo}\n"
+                    f"Nodos expandidos: {ventana.nodos_expand}\n"
+                    f"Profundidad del árbol: {ventana.profundidad}\n"
+                    f"Tiempo de cómputo: {tiempo_final - ventana.tiempo_inicio:.4f} segundos"
+            )
             return
-        
+    
         # Obtener la direccion actual del movimiento
         direccion = ventana.camino[i]
         df, dc = movimientos.get(direccion.lower(), (0, 0))
@@ -253,7 +276,7 @@ def recorrer_camino():
         fila += df
         columna += dc
 
-        # Coordenadas en pixeles para el canva
+
         x = columna * celda + celda // 2
         y = fila * celda + celda // 2
             
@@ -306,7 +329,6 @@ subOpciones.bind("<<ComboboxSelected>>", actualizar_estado_start)
 botonTablero = tk.Button(ventana_tablero, text="RECORRER", command=recorrer_camino)
 botonTablero.place(x=400, y=580)
 
-botonTablero = tk.Button(ventana_tablero, text="REGRESAR", command=bienvenida)
-botonTablero.place(x=300, y=580)
+
 bienvenida()
 ventana.mainloop()

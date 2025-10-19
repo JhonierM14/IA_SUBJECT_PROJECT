@@ -44,20 +44,28 @@ def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
 
 def esMismoEstado(nodo, nodoCola) -> bool:
     """
-    Si se pasa por una casilla en la cual ya se estubo y el estado es igual para ambos
-    nodos se retorna True y la rama muere, en caso contraria sigue expandiendo.
-
-    Args
-    - nodo (searchTree): nodo padre
-    - nodoCola (searchTree): nodo encontrado con el que se compara el estado
-
-    Return
-    - Representa si es igual o no el estado de los nodos (bool)
+    CORRECTO: Solo es ciclo si estamos en la MISMA POSICIÓN 
+    con el MISMO ESTADO (mismas muestras y mismo estado de nave)
+    
+    Args:
+    - nodo: nodo actual que queremos crear
+    - nodoCola: nodo anterior con el que comparamos
+    
+    Return:
+    - True si ES ciclo (evitar), False si NO es ciclo (permitir)
     """
-    if nodo.tieneNave == nodoCola.tieneNave and nodo.muestras==nodoCola.muestras:
-        return True
-    else: 
-        return False # Si se retorna False, se crea el hijo
+    # Paso 1: Verificar si es la MISMA posición
+    if nodo.posicionActual != nodoCola.posicionActual:
+        return False  # Diferentes posiciones → NO es ciclo
+    
+    # Paso 2: Misma posición - verificar si el estado CAMBIÓ
+    if nodo.muestras > nodoCola.muestras:
+        return False  # Recogió nueva muestra → PERMITIR (no es ciclo)
+    if nodo.tieneNave != nodoCola.tieneNave:
+        return False  # Cambió estado de la nave → PERMITIR (no es ciclo)
+    
+    # Paso 3: Misma posición + MISMO estado = CICLO (EVITAR)
+    return True
 
 def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     """
@@ -104,26 +112,12 @@ def actualizarMapa(head: searchTree, nuevaPosicionAstronauta: tuple) -> list[lis
         return newMapa
 
 def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
-    """
-    Dada una nueva posicion a la que se va a mover el astronauta
-    Si en esa posicion hay una muestra cientifica, se modifica
-    la lista de objetos, para cambiar el atributo de la muestra cientifica
-    por recogida, y luego se aumenta el contador de muestras cientificas
-    en 1
-
-    Args
-    - head (searchTree): nodo padre
-    - posicion (tupla): nueva posicion a la que se movera el astronauta
-
-    Return
-    - cantidad de muestras cientificas (int)
-    """
     x, y = posicion
     if head.mapa[x][y] == 6:
         for i in range(len(listaObjetos)):
             if listaObjetos[i].posicion == (x, y):
                 listaObjetos[i].recogido = True
-
+        print(f"Recogio muestra en {posicion} total: {head.muestras + 1}")
         return head.muestras + 1
     else: 
         return head.muestras
@@ -197,7 +191,7 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) 
     tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
     movimientosNave = movimientosRestantesNave(nodo)
 
-    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo)
+    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, profundidad=nodo.profundidad+1)
     return hijo
 
 def traerHijos(nodo: searchTree, direcciones: dict) -> None: 
@@ -246,11 +240,10 @@ def posicionObjetos() -> None:
                 lista.append(Objeto(6, "muestra cientifica", (i, j), False))
     return lista
 
-def meterHijosEnPilaEntrada(cola: deque, hijos: list):
+
+def meterHijosEnPila(cola: deque, hijos: list):
   for i in range(len(hijos)):  
     cola.append(hijos[i])
-
-
 
 def expandir(nodo: searchTree, direcciones: dict):
     """
@@ -261,13 +254,14 @@ def expandir(nodo: searchTree, direcciones: dict):
     """
     traerHijos(nodo, direcciones) # expandir
     nodosExpandidos.append(nodo)  # Registrar nodo expandido
+    
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
         print("llegue a la meta")
         salirBucle()
     else:
-        meterHijosEnPilaEntrada(colaEntrada, nodo.hijos)
+        meterHijosEnPila(pila, nodo.hijos)
     
 
 def salirBucle():
@@ -281,7 +275,7 @@ def resolver_profundidad(Mapa: list[list]) -> list:
     algoritmo de busqueda por amplitud
     """
     while key:
-        primerElemento: searchTree = colaEntrada.pop()
+        primerElemento: searchTree = pila.pop() # Extrae de la pila
 
         # primerElemento.printMapa()
         # primerElemento.imprimirInformacion()
@@ -291,7 +285,7 @@ def resolver_profundidad(Mapa: list[list]) -> list:
 
     if key==False:
         solucion.reverse()
-        return solucion
+        return solucion,nodosExpandidos
 
 Mapa = [
             [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -305,34 +299,35 @@ Mapa = [
             [0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
             [0, 1, 1, 1, 0, 0, 0, 0, 0, 1]
         ]
-listaObjetos = posicionObjetos()
 
+listaObjetos = posicionObjetos()
 Tree = searchTree(Mapa)
 Tree.posicionAstronauta()
 
-colaEntrada = deque()
-colaSalida = deque()
-
-colaEntrada.append(Tree)
+pila = deque()
+pila.append(Tree)
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
-
 nodoSolucion: list = []
 solucion = []
-
-# Lista para registrar los nodos expandidos
-nodosExpandidos = []
-
+nodosExpandidos = [] 
 key: bool = True
 
 if __name__ == "__main__":
     start: float = time.time()
     resolver_profundidad(Mapa)
-    end: float = time.time()
+    end = time.time()
+        
+    if nodoSolucion:  
+        profundidad = nodoSolucion[0].profundidad
+        print(f"La profundidad del árbol es: {profundidad}")
+
+    
     print(f"La cantidad de nodos expandidos es: {len(nodosExpandidos)}")
     print("Posiciones de todos los nodos expandidos:")
     for nodo in nodosExpandidos:
         print(nodo.posicionActual)
+    
     '''
     print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
     print(f"La función tardó {end - start:.4f} segundos")
