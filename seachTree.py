@@ -29,6 +29,7 @@ class searchTree:
                     lista.append(Objeto(5, "nave", (i, j), False))
                 elif self.mapa[i][j] == 6:
                     lista.append(Objeto(6, "muestra cientifica", (i, j), False))
+        print(lista)
         self.listaObjetos = lista
 
     def setTieneNave(self, boolean):
@@ -134,7 +135,7 @@ class searchTree:
     def imprimirInformacion(self) -> None:
         """Imprime la informacion del nodo"""
         if self.nodoPadre == None:
-            print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}")
+            print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}, lista de objetos: {self.listaObjetos}")
         else:
             print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
 

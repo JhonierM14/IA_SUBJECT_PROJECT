@@ -5,9 +5,10 @@ from PIL import Image, ImageTk
 import time
 
 # Algoritmos de busqueda
-import amplitud
+from amplitud import *
 from costoUniforme import resolver_uniforme
 import profundidad
+from utils import convertir_matriz_numerica
 
 # Ventana general
 ventana = tk.Tk()
@@ -195,25 +196,13 @@ def iniciar_tablero():
     tiempo_inicio = time.time()
     
   
-    
     if tipo_busqueda == "Búsqueda No informada":
         if algoritmo == "Amplitud":
-            
-            amplitud.Mapa = [[int(x) for x in fila] for fila in ventana.matriz]
-            amplitud.listaObjetos = amplitud.posicionObjetos()  
-            amplitud.Tree = amplitud.searchTree(amplitud.Mapa)
-            amplitud.Tree.posicionAstronauta()
-            amplitud.colaEntrada = amplitud.deque()
-            amplitud.colaSalida = amplitud.deque()
-            amplitud.colaEntrada.append(amplitud.Tree)
-            amplitud.nodoSolucion = []
-            amplitud.solucion = []
-            amplitud.key = True
-
-
-            camino = amplitud.resolver_amplitud(amplitud.Mapa)
-
+            if(type(ventana.matriz[0][0]) == str): 
+                mapa = convertir_matriz_numerica(ventana.matriz)
+                camino = resolver_amplitud(mapa)
         elif algoritmo == "Costo uniforme":
+            pass
             camino = resolver_uniforme(ventana.matriz)
             
         elif algoritmo == "Profundidad evitando ciclo":
