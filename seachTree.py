@@ -1,7 +1,8 @@
+from objeto import Objeto
 import time
 
 class searchTree:
-    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, profundidad: int = 0):
+    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, listaObjetos: list[Objeto] = list()):
         self.mapa = mapa
         self.posicionActual = posicionActual
         self.muestras = muestras
@@ -11,7 +12,24 @@ class searchTree:
         self.operadorRealizado = operadorRealizado
         self.hijos = hijos
         self.nodoPadre = nodoPadre
-        self.profundidad = profundidad
+        self.listaObjetos = listaObjetos
+
+    def posicionObjetos(self) -> None:
+        """
+        Almacena en una lista la posicion de los obstaculos y objetos en el mapa
+        """
+        lista = list()
+        for i in range(10):
+            for j in range(10):
+                if self.mapa[i][j] == 3:
+                    lista.append(Objeto(3, "terreno rocoso", (i, j)))
+                elif self.mapa[i][j] == 4:
+                    lista.append(Objeto(4, "terreno volcanico", (i, j)))
+                elif self.mapa[i][j] == 5:
+                    lista.append(Objeto(5, "nave", (i, j), False))
+                elif self.mapa[i][j] == 6:
+                    lista.append(Objeto(6, "muestra cientifica", (i, j), False))
+        self.listaObjetos = lista
 
     def setTieneNave(self, boolean):
         self.tieneNave = boolean
@@ -26,11 +44,18 @@ class searchTree:
                 if self.mapa[i][j] == 2:
                     self.posicionActual = (i, j)
 
-    def esMeta(self):
+    def posicionNave(self) -> tuple:
+        """Busca la posicion de la nave en el mapa y la retorna"""
+        for i in range(10):
+            for j in range(10):
+                if self.mapa[i][j] == 5:
+                    return (i, j)
+
+    def esMeta(self) -> bool:
         """verifica si ya se llego a la meta"""
         if self.muestras == 3:
             return True
-        else: False
+        else: return False
         
     def puedoMoverme(self, direccion: str, posicionAstronauta: tuple) -> bool:
         """
@@ -113,4 +138,3 @@ class searchTree:
         else:
             print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
 
-            

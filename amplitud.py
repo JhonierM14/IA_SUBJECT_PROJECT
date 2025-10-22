@@ -9,6 +9,22 @@ def SOLUCION(head: searchTree, solucion: list) -> None:
         solucion.append(head.operadorRealizado)
         SOLUCION(head.nodoPadre, solucion)
 
+def SOLUCION_MAPA(head: searchTree, solucion: list) -> None:
+    """
+    Añade recursivamente los operadores realizados
+    desde el ultimo de una rama, hasta el nodo 
+    raiz o nodo padre del arbol
+    
+    Args
+    - head (searchTree): ultimo nodo generado en la solucion
+    - solucion (list): lista donde se guardaran los operadores
+    """    
+    if head.nodoPadre != None:
+        solucion.append(head.mapa)
+        SOLUCION_MAPA(head.nodoPadre, solucion)
+    else:
+        pass
+
 def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
     if nodoPadre == None:
         return (False, nodoPadre)
@@ -25,6 +41,7 @@ def esMismoEstado(nodo, nodoCola) -> bool:
 
 def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     x, y = posicionActual
+
     if direccion == "up": return (x - 1, y)
     if direccion == "left": return (x, y - 1)
     if direccion == "down": return (x + 1, y)
@@ -76,7 +93,7 @@ def movimientosRestantesNave(head: searchTree) -> int:
 def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) -> None:
     newMapa = actualizarMapa(nodo, nuevaPosicionAstronauta)
     posicion = nuevaPosicionAstronauta
-    muestras = cantidadMuestrasCientificas(nodo, nuevaPosicionAstronauta)
+    muestras = cantidadMuestrasCientificas(listaObjetos, nodo, nuevaPosicionAstronauta)
     energiaGastada = totalEnergia(nodo)
     tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
     movimientosNave = movimientosRestantesNave(nodo)
@@ -127,6 +144,7 @@ def expandir(nodo: searchTree, direcciones: dict):
         print("llegue a la meta")
         salirBucle()
     else: 
+        traerHijos(nodo, direcciones) # expandir
         meterHijosEnColaEntrada(colaEntrada, nodo.hijos)
         meterNodoColaSalida(colaSalida, nodo)
 
@@ -141,7 +159,19 @@ def resolver_amplitud(Mapa: list[list]) -> list:
     if key == False:
         solucion.reverse()
         return solucion
+        
+    print("Solucion encontrada por amplitud")
 
+colaEntrada = deque()
+colaSalida = deque()
+
+direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
+
+nodoSolucion: list = []
+solucion = []
+solucionMapa: list[ list[list] ] = []
+
+# if __name__ == "main":
 Mapa = [
     [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
     [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
@@ -179,3 +209,9 @@ print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
 print(f"La función tardó {end - start:.4f} segundos")
 print(solucion)
 
+print("\n\n")
+solucionMapa.reverse()
+for mapa in solucionMapa:
+    for lista in mapa:
+        print(lista)
+    print("-------------------------------")

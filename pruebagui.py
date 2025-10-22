@@ -1,8 +1,13 @@
 # Interfaz gráfica
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
-from PIL import Image, ImageTk
 import time
+import tkinter as tk
+from tkinter import ttk
+from tkinter import *
+from tkinter import messagebox
+from PIL import Image, ImageTk 
+from tkinter import filedialog
+from amplitud import resolver_amplitud
+import numpy as np
 
 # Algoritmos de busqueda
 import amplitud
@@ -213,19 +218,18 @@ def iniciar_tablero():
 
             camino = amplitud.resolver_amplitud(amplitud.Mapa)
 
-        elif algoritmo == "Costo uniforme":
-            camino = resolver_uniforme(ventana.matriz)
-            
-        elif algoritmo == "Profundidad evitando ciclo":
-            profundidad.nodosExpandidos = []
-            profundidad.nodoSolucion = []
-            profundidad.solucion = []
-            profundidad.key = True
-            
-            camino, nodos_expand_list = profundidad.resolver_profundidad(ventana.matriz)
-            ventana.nodos_expand = len(nodos_expand_list)
-            if profundidad.nodoSolucion:
-                profundidad_arbol= profundidad.nodoSolucion[0].profundidad
+        tipo_busqueda = despegable.get()
+        algoritmo = subOpciones.get()
+
+        camino = []
+
+        if tipo_busqueda == "Búsqueda No informada":
+            if algoritmo == "Amplitud":
+                camino = resolver_amplitud()
+            elif algoritmo == "Costo uniforme":
+                camino = [] # resolver_costo_uniforme(ventana.matriz)
+            elif algoritmo == "Profundidad evitando ciclo":
+                camino = [] # resolver_profundidad(ventana.matriz)
                 
     ventana.camino = camino
     ventana.algoritmo = algoritmo
