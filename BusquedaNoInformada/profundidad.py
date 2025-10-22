@@ -123,25 +123,24 @@ def meterHijosEnPila(cola: deque, hijos: list):
 def expandir(nodo: searchTree, direcciones: dict):
     traerHijos(nodo, direcciones)
     nodosExpandidos.append(nodo)
-    if nodo.esMeta():
-        nodoSolucion.append(nodo)
-        SOLUCION(nodo, solucion)
-        print("llegue a la meta")
-        salirBucle()
-    else:
-        meterHijosEnPila(pila, nodo.hijos)
+    meterHijosEnPila(pila, nodo.hijos)
 
 def salirBucle():
     global key
     key = False
 
 def resolver_profundidad(Mapa: list[list]) -> list:
-    while key:
+    global key
+    while key and pila:
         primerElemento: searchTree = pila.pop()
-        expandir(primerElemento, direcciones)
-    if key==False:
-        solucion.reverse()
-        return solucion,nodosExpandidos
+        if primerElemento.esMeta():
+            nodoSolucion.append(primerElemento)
+            SOLUCION(primerElemento, solucion)
+            key = False
+        else:
+            expandir(primerElemento, direcciones)
+    solucion.reverse()
+    return solucion, nodosExpandidos
 
 Mapa = [
     [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],

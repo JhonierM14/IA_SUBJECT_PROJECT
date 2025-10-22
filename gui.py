@@ -5,9 +5,9 @@ from PIL import Image, ImageTk
 import time
 
 # Algoritmos de busqueda
-import amplitud
-from costoUniforme import resolver_uniforme
-import profundidad
+import BusquedaNoInformada.amplitud as amplitud
+import BusquedaNoInformada.costoUniforme as costoUniforme 
+import BusquedaNoInformada.profundidad as profundidad
 
 # Ventana general
 ventana = tk.Tk()
@@ -189,13 +189,9 @@ def iniciar_tablero():
         ventana.profundidad = 0
         return
         
-    camino = []
-    nodos_expand = 0
-    profundidad_arbol = 0
-    tiempo_inicio = time.time()
-    
-  
-    
+    camino = []    
+    ventana.nodos_expand = 0
+
     if tipo_busqueda == "Búsqueda No informada":
         if algoritmo == "Amplitud":
             
@@ -210,27 +206,77 @@ def iniciar_tablero():
             amplitud.solucion = []
             amplitud.key = True
 
-
+            tiempo_inicio = time.time()
             camino = amplitud.resolver_amplitud(amplitud.Mapa)
+            ventana.camino = camino  
+
+
+            ventana.algoritmo = algoritmo 
+            ventana.costo_total = 0
+            ventana.nodos_expand = len(amplitud.colaSalida)
+            ventana.profundidad = len(camino) if camino else 0
+            ventana.tiempo_inicio = tiempo_inicio
 
         elif algoritmo == "Costo uniforme":
-            camino = resolver_uniforme(ventana.matriz)
+            costoUniforme.Mapa = [[int(x) for x in fila] for fila in ventana.matriz]
+            costoUniforme.listaObjetos = costoUniforme.posicionObjetos()
+            costoUniforme.Tree = costoUniforme.searchTree(costoUniforme.Mapa)
+            costoUniforme.Tree.posicionAstronauta()
+            costoUniforme.listaEntrada = [costoUniforme.Tree]
+            costoUniforme.listaSalida = []
+            costoUniforme.nodoSolucion = []
+            costoUniforme.solucion = []
+            costoUniforme.key = True
+            costoUniforme.direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
+            
+            tiempo_inicio = time.time()
+            camino = costoUniforme.resolver_uniforme(costoUniforme.Mapa)
+
+            ventana.camino = camino  
+            
+            ventana.algoritmo = algoritmo 
+            ventana.nodos_expand = len(costoUniforme.listaSalida)
+            ventana.profundidad = len(camino) if camino else 0
+            ventana.tiempo_inicio = tiempo_inicio
+            ventana.costo_total = costoUniforme.nodoSolucion[0].energiaTotalGastada
+                    
             
         elif algoritmo == "Profundidad evitando ciclo":
-            profundidad.nodosExpandidos = []
+            profundidad.Mapa = [[int(x) for x in fila] for fila in ventana.matriz]
+            profundidad.listaObjetos = profundidad.posicionObjetos()
+            profundidad.Tree = profundidad.searchTree(profundidad.Mapa)
+            profundidad.Tree.posicionAstronauta()
+            profundidad.pila = profundidad.deque()
+            profundidad.pila.append(profundidad.Tree)
             profundidad.nodoSolucion = []
             profundidad.solucion = []
+            profundidad.nodosExpandidos = []
             profundidad.key = True
+            profundidad.direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
             
-            camino, nodos_expand_list = profundidad.resolver_profundidad(ventana.matriz)
+            tiempo_inicio = time.time()
+            resultado = profundidad.resolver_profundidad(profundidad.Mapa)
+            tiempo_final = time.time()
+            
+            if resultado and len(resultado) == 2:
+                camino, nodos_expand_list = resultado
+            else:
+                camino, nodos_expand_list = [], []
+                
+                
+            ventana.camino = camino
+            
             ventana.nodos_expand = len(nodos_expand_list)
             if profundidad.nodoSolucion:
-                profundidad_arbol= profundidad.nodoSolucion[0].profundidad
-                
-    ventana.camino = camino
-    ventana.algoritmo = algoritmo
-    ventana.profundidad = profundidad_arbol
-    ventana.tiempo_inicio = tiempo_inicio
+                ventana.profundidad = profundidad.nodoSolucion[0].profundidad
+            else:
+                ventana.profundidad = len(camino) if camino else 0
+
+            ventana.algoritmo = algoritmo
+            ventana.tiempo_inicio = tiempo_inicio
+            ventana.tiempo_final = tiempo_final
+            ventana.algoritmo = algoritmo 
+            ventana.costo_total = 0
  
 # Funcion de movimiento 
 def recorrer_camino():
@@ -278,9 +324,10 @@ def recorrer_camino():
             messagebox.showinfo(
                     "Resultados del Algoritmo",
                     f"Algoritmo: {ventana.algoritmo}\n"
-                    #f"Nodos expandidos: {ventana.nodos_expand}\n"
-                    #f"Profundidad del árbol: {ventana.profundidad}\n"
-                   # f"Tiempo de cómputo: {tiempo_final - ventana.tiempo_inicio:.4f} segundos"
+                    f"Nodos expandidos: {ventana.nodos_expand}\n"
+                    f"Profundidad del árbol: {ventana.profundidad}\n"
+                    f"Costo total: {ventana.costo_total: .2f}\n"
+                    f"Tiempo de cómputo: {tiempo_final - ventana.tiempo_inicio:.4f} segundos"
             )
             return
     
