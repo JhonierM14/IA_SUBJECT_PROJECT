@@ -217,8 +217,8 @@ def iniciar_tablero():
         if algoritmo == "Avara":
             camino = resolver_avara(convertir_matriz_numerica(ventana.matriz))
         elif algoritmo == "A*":
-            pass
             # camino = resolver_A(convertir_matriz_numerica(ventana.matriz))
+            pass
 
     ventana.camino = camino
     ventana.algoritmo = algoritmo

@@ -267,7 +267,7 @@ def heuristica(nodo: searchTree) -> int:
     return mejor
 
 
-def resolver_avara_info(matriz: List[List[str | int]]) -> Tuple[List[str], Dict[str, Any]]:
+def resolver_A_info(matriz: List[List[str | int]]) -> Tuple[List[str], Dict[str, Any]]:
     """
     Funcion principal que ejecuta la busqueda avara sobre la matriz del mundo.
     """
@@ -328,14 +328,13 @@ def resolver_avara_info(matriz: List[List[str | int]]) -> Tuple[List[str], Dict[
     print([])
     return [], info
 
-
-def resolver_avara(matriz: List[List[str | int]]) -> List[str]:
+def resolver_A(matriz: List[List[str | int]]) -> List[str]:
     """
     Atajo que solo retorna la lista de movimientos.
     """
-    movimientos, _ = resolver_avara_info(matriz)
+    movimientos, _ = resolver_A_info(matriz)
     return movimientos
 
 if __name__ == "__main__":
 
-    resolver_avara(Mapa)
+    resolver_A(Mapa)

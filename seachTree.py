@@ -29,7 +29,6 @@ class searchTree:
                     lista.append(Objeto(5, "nave", (i, j), False))
                 elif self.mapa[i][j] == 6:
                     lista.append(Objeto(6, "muestra cientifica", (i, j), False))
-        print(lista)
         self.listaObjetos = lista
 
     def setTieneNave(self, boolean):

@@ -4,11 +4,51 @@ from seachTree import searchTree
 import time
 import copy
 
+from utils import Mapa
+
 def SOLUCION(head: searchTree, solucion: list) -> None:
     if head.nodoPadre != None:
         solucion.append(head.operadorRealizado)
         SOLUCION(head.nodoPadre, solucion)
 
+def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
+    """
+    Verifica si el astronauta ya paso por la casilla, si el nodo padre actual es none
+    retorna (False, none), si el nodo padre actual tiene la misma posicion que la nueva
+    posicion del astronauta se retorna (True, nodoPadre), para el resto de casos sigue
+    buscando recursivamente
+
+    Args
+    - nodoPadre (searchTree): nodo padre
+    - nuevaPosicionAstronauta (tupla): nueva posicion del astronauta
+
+    Return 
+    - el primer argumento representa si ya se paso o no por la casilla, el segundo argumento el nodo con la misma posicion (tuple[bool, object])
+    """
+    if nodoPadre == None:
+        return (False, nodoPadre)
+    elif nodoPadre.posicionActual == nuevaPosicionAstronauta:
+        return (True, nodoPadre)
+    else:
+        return yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
+
+def esMismoEstado(nodo, nodoCola) -> bool:
+    """
+    Si se pasa por una casilla en la cual ya se estubo y el estado es igual para ambos
+    nodos se retorna True y la rama muere, en caso contraria sigue expandiendo.
+
+    Args
+    - nodo (searchTree): nodo padre
+    - nodoCola (searchTree): nodo encontrado con el que se compara el estado
+
+    Return
+    - Representa si es igual o no el estado de los nodos (bool)
+    """
+    if nodo.tieneNave == nodoCola.tieneNave and nodo.muestras==nodoCola.muestras:
+        return True
+    else: 
+        return False # Si se retorna False, se crea el hijo
+    
 def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     x, y = posicionActual
     if direccion == "up": return (x - 1, y)
@@ -80,9 +120,9 @@ def traerHijos(nodo: searchTree, direcciones: dict) -> None:
         posicionAstronauta: tuple = nodo.posicionActual
         if nodo.puedoMoverme(direcciones[i], posicionAstronauta):
             nuevaPosicionAstronauta = nuevaPosicion(nodo.posicionActual, direcciones[i])
-            bool, nodoSimilar = nodo.yaPasePorAqui(nodo, nuevaPosicionAstronauta)
+            bool, nodoSimilar = yaPasePorAqui(nodo, nuevaPosicionAstronauta)
             if bool:
-                if nodo.esMismoEstado(nodo, nodoSimilar): 
+                if esMismoEstado(nodo, nodoSimilar): 
                     pass
                 else:
                     crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta)
@@ -141,19 +181,6 @@ def resolver_uniforme(Mapa: list[list]) -> list:
         solucion.reverse()
         return solucion
 
-Mapa = [
-    [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-    [0, 2, 0, 0, 3, 3, 3, 6, 0, 0],
-    [0, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-    [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
-    [0, 1, 0, 1, 4, 1, 1, 1, 1, 1],
-    [0, 0, 6, 4, 4, 0, 0, 1, 1, 1],
-    [1, 0, 1, 1, 0, 1, 0, 1, 0, 6],
-    [0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-    [0, 1, 1, 1, 0, 0, 0, 0, 0, 1]
-]
-
 listaObjetos = posicionObjetos()
 Tree = searchTree(Mapa)
 Tree.posicionAstronauta()
@@ -164,12 +191,15 @@ listaEntrada.append(Tree)
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 
-nodoSolucion: list = []
+nodoSolucion: list[searchTree] = []
 solucion = []
 
 key = True
 
 if __name__ == "__main__":
     start: float = time.time()
-    resolver_uniforme(Mapa)
+    solucion = resolver_uniforme(Mapa)
     end: float = time.time()
+    print("pasos: ", solucion)
+    print("nodos expandidos: ", len(listaSalida) + 1)
+    print("profundidad: ", nodoSolucion[0].profundidadArbol())

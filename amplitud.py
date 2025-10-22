@@ -4,6 +4,8 @@ from seachTree import searchTree
 import time
 import copy
 
+from utils import Mapa
+
 def SOLUCION(head: searchTree, solucion: list) -> None:
     """
     Añade recursivamente los operadores realizados
@@ -115,15 +117,14 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
 
         # Si el astronauta paso por un objeto, se vuelven a colocar 
         # los objetos en el mapa al moverse el astronauta
+        
+        posicionNave = (0, 0)
 
         for i in range(len(listaObjetos)):
             objeto: Objeto = listaObjetos[i]
             if objeto.id != 5 and (objeto.recogido == False or objeto.recogido == None): # id 5 es la nave
-                newMapa[objeto.posicion[0]][objeto.posicion[1]]= objeto.id
-
-        for i in range(len(listaObjetos)):
-            objeto: Objeto = listaObjetos[i]
-            if objeto.id == 5: # Si el objeto es la nave
+                newMapa[objeto.posicion[0]][objeto.posicion[1]] = objeto.id
+            elif objeto.id == 5: # Si el objeto es la nave
                 if head.tieneNave == False and head.movimientosNave == 20 and newMapa[x][y] != objeto.id:
                     newMapa[x][y] = 2 # el astronauta navega por el mapa sin estar cerca a la nave
                 elif head.tieneNave == False and head.movimientosNave == 20 and newMapa[x][y] == objeto.id: # Si el astronauta no tiene nave, hay dos opciones, la nave esta en la posicion inicial o el astronauta ya la utilizo y la dejo en otra posicion del mapa
@@ -338,24 +339,12 @@ solucion = []
 solucionMapa: list[ list[list] ] = []
 
 if __name__ == "__main__":
-    Mapa = [
-                [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-                [0, 2, 0, 0, 3, 3, 3, 6, 0, 0],
-                [0, 1, 0, 1, 1, 1, 1, 0, 1, 1],
-                [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
-                [0, 1, 0, 1, 4, 1, 1, 1, 1, 1],
-                [0, 0, 6, 4, 4, 0, 0, 1, 1, 1],
-                [1, 0, 1, 1, 0, 1, 0, 1, 0, 6],
-                [0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
-                [0, 1, 1, 1, 0, 0, 0, 0, 0, 1]
-            ]
 
     start: float = time.time(); 
     resolver_amplitud(Mapa)
     end: float = time.time()
 
-    print(f"La cantidad de nodos expandidos es: {len(colaSalida)}")
+    print(f"La cantidad de nodos expandidos es: {len(colaSalida) + 1}")
     print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
     print(f"La función tardó {end - start:.4f} segundos")
     print(solucion)
