@@ -6,6 +6,7 @@ import time
 
 # Algoritmos de busqueda
 from amplitud import *
+from avara import resolver_avara
 from costoUniforme import resolver_uniforme
 import profundidad
 from utils import convertir_matriz_numerica
@@ -194,17 +195,14 @@ def iniciar_tablero():
     nodos_expand = 0
     profundidad_arbol = 0
     tiempo_inicio = time.time()
-    
-  
+
     if tipo_busqueda == "Búsqueda No informada":
         if algoritmo == "Amplitud":
-            if(type(ventana.matriz[0][0]) == str): 
-                mapa = convertir_matriz_numerica(ventana.matriz)
-                camino = resolver_amplitud(mapa)
+            camino = resolver_amplitud(convertir_matriz_numerica(ventana.matriz))
+
         elif algoritmo == "Costo uniforme":
-            pass
-            camino = resolver_uniforme(ventana.matriz)
-            
+            camino = resolver_uniforme(convertir_matriz_numerica(ventana.matriz))
+
         elif algoritmo == "Profundidad evitando ciclo":
             profundidad.nodosExpandidos = []
             profundidad.nodoSolucion = []
@@ -215,7 +213,13 @@ def iniciar_tablero():
             ventana.nodos_expand = len(nodos_expand_list)
             if profundidad.nodoSolucion:
                 profundidad_arbol= profundidad.nodoSolucion[0].profundidad
-                
+    else:
+        if algoritmo == "Avara":
+            camino = resolver_avara(convertir_matriz_numerica(ventana.matriz))
+        elif algoritmo == "A*":
+            pass
+            # camino = resolver_A(convertir_matriz_numerica(ventana.matriz))
+
     ventana.camino = camino
     ventana.algoritmo = algoritmo
     ventana.profundidad = profundidad_arbol
