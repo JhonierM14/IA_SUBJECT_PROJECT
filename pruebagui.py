@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 import time
 
 # Algoritmos de busqueda
-from amplitud import resolver_amplitud
+import amplitud
 from costoUniforme import resolver_uniforme
 import profundidad
 
@@ -190,12 +190,28 @@ def iniciar_tablero():
         return
         
     camino = []
+    nodos_expand = 0
     profundidad_arbol = 0
     tiempo_inicio = time.time()
     
+  
+    
     if tipo_busqueda == "Búsqueda No informada":
         if algoritmo == "Amplitud":
-            camino = resolver_amplitud(ventana.matriz)
+            
+            amplitud.Mapa = [[int(x) for x in fila] for fila in ventana.matriz]
+            amplitud.listaObjetos = amplitud.posicionObjetos()  
+            amplitud.Tree = amplitud.searchTree(amplitud.Mapa)
+            amplitud.Tree.posicionAstronauta()
+            amplitud.colaEntrada = amplitud.deque()
+            amplitud.colaSalida = amplitud.deque()
+            amplitud.colaEntrada.append(amplitud.Tree)
+            amplitud.nodoSolucion = []
+            amplitud.solucion = []
+            amplitud.key = True
+
+
+            camino = amplitud.resolver_amplitud(amplitud.Mapa)
 
         elif algoritmo == "Costo uniforme":
             camino = resolver_uniforme(ventana.matriz)
