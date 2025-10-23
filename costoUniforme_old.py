@@ -3,7 +3,6 @@ from objeto import Objeto
 from seachTree import searchTree
 import time
 import copy
-from utils import Mapa
 
 def SOLUCION(head: searchTree, solucion: list) -> None:
     """
@@ -36,8 +35,7 @@ def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     if direccion == "down": return (x + 1, y)
     if direccion == "right": return (x, y + 1)
 
-
-def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAstronauta: tuple) -> list[list]:
+def actualizarMapa(head: searchTree, nuevaPosicionAstronauta: tuple) -> list[list]:
         """
         Copia el mapa del nodo padre, luego modifica la casilla 
         donde estaba el astronauta por una casilla libre, despues  
@@ -51,45 +49,22 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
         Return
         - Mapa actualizado (list[list])
         """
-
         newMapa = copy.deepcopy(head.mapa)
 
         a, b = head.posicionActual # La posicion anterior del astronauta se cambia por un camino libre
-        x, y = nuevaPosicionAstronauta # La nueva posicion del astronauta
-
         newMapa[a][b] = 0
-
-        # Si el astronauta paso por un objeto, se vuelven a colocar 
-        # los objetos en el mapa al moverse el astronauta
-
-        # posicionNave = (0, 0)
 
         for i in range(len(listaObjetos)):
             objeto: Objeto = listaObjetos[i]
-            if objeto.id != 5 and (objeto.recogido == False or objeto.recogido == None): # id 5 es la nave
-                newMapa[objeto.posicion[0]][objeto.posicion[1]] = objeto.id
-            elif objeto.id == 5: # Si el objeto es la nave
-                if head.tieneNave == False and head.movimientosNave == 20 and newMapa[x][y] != objeto.id:
-                    newMapa[x][y] = 2 # el astronauta navega por el mapa sin estar cerca a la nave
-                elif head.tieneNave == False and head.movimientosNave == 20 and newMapa[x][y] == objeto.id: # Si el astronauta no tiene nave, hay dos opciones, la nave esta en la posicion inicial o el astronauta ya la utilizo y la dejo en otra posicion del mapa
-                    newMapa[x][y] = 5 # ya esta la nave en la casilla en la que me voy a mover
-                elif head.tieneNave == True and head.movimientosNave == 20 and newMapa[x][y] != objeto.id:
-                    newMapa[x][y] = 5 # el astronauta llega a la nave
-                elif head.tieneNave == True and head.movimientosNave >= 1: # Si el astronauta tiene nave, y movimientos se mueve con el astronauta
-                    objeto.posicion = x, y
-                    newMapa[objeto.posicion[0]][objeto.posicion[1]] = 5
-                elif head.tieneNave == True and head.movimientosNave == 0: # Si el astronauta tiene nave, y cero movimientos la nave muere
-                    objeto.posicion = a, b # como no puede avanzar mas se queda en el pasado
-                    newMapa[objeto.posicion[0]][objeto.posicion[1]] = 5
-                    newMapa[x][y] = 2
-                elif head.tieneNave == False and head.movimientosNave == 0: # Si el astronauta no tiene nave, ni movimientos, se inserta en la ultima posicion guardada
-                    newMapa[objeto.posicion[0]][objeto.posicion[1]]= objeto.id
-                    newMapa[x][y] = 2
-            
+            if objeto.recogido == False or objeto.recogido == None:
+                newMapa[objeto.posicion[0]][objeto.posicion[1]]= objeto.id
+
+        x, y = nuevaPosicionAstronauta 
+        newMapa[x][y] = 2
 
         return newMapa
 
-def cantidadMuestrasCientificas(listaObjetos: list[Objeto], head: searchTree, posicion: tuple) -> int:
+def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
     """
     Dada una nueva posicion a la que se va a mover el astronauta
     Si en esa posicion hay una muestra cientifica, se modifica
@@ -109,6 +84,7 @@ def cantidadMuestrasCientificas(listaObjetos: list[Objeto], head: searchTree, po
         for i in range(len(listaObjetos)):
             if listaObjetos[i].posicion == (x, y):
                 listaObjetos[i].recogido = True
+                print(f"Muestra recogida en coordenada: {x, y}")
 
         return head.muestras + 1
     else: 
@@ -154,22 +130,34 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
         return False
 
 def movimientosRestantesNave(head: searchTree, tieneNave: bool) -> int:
-    if tieneNave == True and head.movimientosNave > 0:
+    """
+    Se modifico la funcion para que reciba el bool tieneNave que se crea en la funcion crearHijo,
+    ya que si se extrae el atributo "tieneNave" de head, este nos daria la informacion del nodo padre, la cual
+    podria ser diferente a la del hijo que se esta creando.
+    """
+    if tieneNave == True:
         return head.movimientosNave - 1
     else:
         return head.movimientosNave
 
 def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) -> None:
+    """
+    Se crea y añade un nodo hijo al nodo padre
 
-    posicion = nuevaPosicionAstronauta 
-    listaObjetos = copy.deepcopy(nodo.listaObjetos)
-    muestras = cantidadMuestrasCientificas(listaObjetos, nodo, posicion)
-    newMapa = actualizarMapa(listaObjetos, nodo, posicion)
+    Args
+    - nodo (searchTree): nodo padre
+    - direccion (str): up | left | down | right
+    - nuevaPosicionAstronauta (tupla): coordenadas de la nueva posicion del astronauta ej:. (a, b)
+    """
+
+    newMapa = actualizarMapa(nodo, nuevaPosicionAstronauta)
+    posicion = nuevaPosicionAstronauta
+    muestras = cantidadMuestrasCientificas(nodo, posicion)
     tieneNave = nosMontamosEnNave(nodo, posicion)
     movimientosNave = movimientosRestantesNave(nodo, tieneNave)
     energiaGastada = totalEnergia(nodo, posicion, tieneNave)
-    
-    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos)
+
+    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo)
     nodo.añadirHijo(hijo)
 
 def traerHijos(nodo: searchTree, direcciones: dict) -> None: 
@@ -252,10 +240,9 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta")
+        print("llegue a la meta"); 
         print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
         print("Mapa: ", nodo.mapa)
-        print("Lista objetos: ", nodo.listaObjetos)
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
@@ -267,11 +254,10 @@ def salirBucle():
     key = False
 
 def resolver_uniforme(Mapa: list[list]) -> list:
-    raiz = searchTree(Mapa)
-    raiz.posicionAstronauta()
-    raiz.posicionObjetos()
-    listaEntrada.append(raiz)
-
+    """
+    Funcion principal que pone en marcha el 
+    algoritmo de busqueda por costo uniforme
+    """
     while key:
         menorNodo: searchTree = menorEnergia(listaEntrada)
 
@@ -283,13 +269,28 @@ def resolver_uniforme(Mapa: list[list]) -> list:
         solucion.reverse()
         return solucion
 
-#listaObjetos = posicionObjetos()
-#Tree = searchTree(Mapa)
-#Tree.posicionAstronauta()
+Mapa = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
+            [0, 2, 0, 0, 3, 3, 3, 6, 0, 0],
+            [0, 1, 0, 1, 1, 1, 1, 0, 1, 1],
+            [0, 1, 0, 1, 0, 0, 0, 0, 1, 1],
+            [0, 1, 0, 1, 4, 1, 1, 1, 1, 1],
+            [0, 0, 6, 4, 4, 0, 0, 1, 1, 1],
+            [1, 0, 1, 1, 0, 1, 0, 1, 0, 6],
+            [0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+            [0, 1, 1, 1, 0, 0, 0, 0, 0, 1]
+        ]
+
+listaObjetos = posicionObjetos()
+
+Tree = searchTree(Mapa)
+Tree.posicionAstronauta()
 
 listaEntrada = list()
 listaSalida = list()
-#listaEntrada.append(Tree)
+
+listaEntrada.append(Tree)
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 

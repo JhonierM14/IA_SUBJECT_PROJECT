@@ -12,6 +12,23 @@ class searchTree:
         self.hijos = hijos
         self.nodoPadre = nodoPadre
 
+    def yaPasePorAqui(self, nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
+        """
+        Verifica si el astronauta ya paso por la casilla
+        """
+        if nodoPadre == None:
+            return (False, nodoPadre)
+        elif nodoPadre.posicionActual == nuevaPosicionAstronauta:
+            return (True, nodoPadre)
+        else:
+            return self.yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
+        
+    def esMismoEstado(self, head, nodoCola):
+        if head.tieneNave == nodoCola.tieneNave and head.muestras==nodoCola.muestras:
+            return True
+        else: 
+            return False # Si se retorna False, se crea el hijo
+
     def setTieneNave(self, boolean):
         self.tieneNave = boolean
 
