@@ -18,10 +18,13 @@ def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
         return yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
 
 def esMismoEstado(nodo, nodoCola) -> bool:
-    if nodo.tieneNave == nodoCola.tieneNave and nodo.muestras == nodoCola.muestras:
-        return True
-    else: 
+    if nodo.posicionActual != nodoCola.posicionActual:
         return False
+    if nodo.muestras > nodoCola.muestras:
+        return False
+    if nodo.tieneNave != nodoCola.tieneNave:
+        return False
+    return True
 
 def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     x, y = posicionActual
@@ -37,7 +40,7 @@ def actualizarMapa(head: searchTree, nuevaPosicionAstronauta: tuple) -> list[lis
     for i in range(len(listaObjetos)):
         objeto: Objeto = listaObjetos[i]
         if objeto.recogido == False or objeto.recogido == None:
-            newMapa[objeto.posicion[0]][objeto.posicion[1]] = objeto.id
+            newMapa[objeto.posicion[0]][objeto.posicion[1]]= objeto.id
     x, y = nuevaPosicionAstronauta
     newMapa[x][y] = 2
     return newMapa
@@ -48,6 +51,7 @@ def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
         for i in range(len(listaObjetos)):
             if listaObjetos[i].posicion == (x, y):
                 listaObjetos[i].recogido = True
+        print(f"Recogio muestra en {posicion} total: {head.muestras + 1}")
         return head.muestras + 1
     else: 
         return head.muestras
@@ -60,9 +64,9 @@ def totalEnergia(head: searchTree) -> float:
 
 def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
     x, y = posicion
-    if head.tieneNave == True and head.movimientosNave >= 1:
+    if head.tieneNave==True and head.movimientosNave>=1:
         return True
-    elif head.tieneNave == False and head.mapa[x][y] == 5:
+    elif head.tieneNave==False and head.mapa[x][y] == 5:
         return True
     else:
         return False
@@ -80,7 +84,7 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) 
     energiaGastada = totalEnergia(nodo)
     tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
     movimientosNave = movimientosRestantesNave(nodo)
-    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo)
+    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, profundidad=nodo.profundidad+1)
     return hijo
 
 def traerHijos(nodo: searchTree, direcciones: dict) -> None: 
@@ -112,35 +116,31 @@ def posicionObjetos() -> None:
                 lista.append(Objeto(6, "muestra cientifica", (i, j), False))
     return lista
 
-def meterHijosEnColaEntrada(cola: deque, hijos: list):
+def meterHijosEnPila(cola: deque, hijos: list):
     for i in range(len(hijos)):  
         cola.append(hijos[i])
 
-def meterNodoColaSalida(cola: deque, nodo):
-    cola.append(nodo)
-
 def expandir(nodo: searchTree, direcciones: dict):
     traerHijos(nodo, direcciones)
-    if nodo.esMeta():
-        nodoSolucion.append(nodo)
-        SOLUCION(nodo, solucion)
-        print("llegue a la meta")
-        salirBucle()
-    else: 
-        meterHijosEnColaEntrada(colaEntrada, nodo.hijos)
-        meterNodoColaSalida(colaSalida, nodo)
+    nodosExpandidos.append(nodo)
+    meterHijosEnPila(pila, nodo.hijos)
 
 def salirBucle():
     global key
     key = False
 
-def resolver_amplitud(Mapa: list[list]) -> list:
-    while key:
-        primerElemento: searchTree = colaEntrada.popleft()
-        expandir(primerElemento, direcciones)
-    if key == False:
-        solucion.reverse()
-        return solucion
+def resolver_profundidad(Mapa: list[list]) -> list:
+    global key
+    while key and pila:
+        primerElemento: searchTree = pila.pop()
+        if primerElemento.esMeta():
+            nodoSolucion.append(primerElemento)
+            SOLUCION(primerElemento, solucion)
+            key = False
+        else:
+            expandir(primerElemento, direcciones)
+    solucion.reverse()
+    return solucion, nodosExpandidos
 
 Mapa = [
     [0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -159,17 +159,23 @@ listaObjetos = posicionObjetos()
 Tree = searchTree(Mapa)
 Tree.posicionAstronauta()
 
-colaEntrada = deque()
-colaSalida = deque()
-colaEntrada.append(Tree)
+pila = deque()
+pila.append(Tree)
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
-
 nodoSolucion: list = []
 solucion = []
+nodosExpandidos = [] 
 key: bool = True
 
 if __name__ == "__main__":
     start: float = time.time()
-    resolver_amplitud(Mapa)
-    end: float = time.time()
+    resolver_profundidad(Mapa)
+    end = time.time()
+    if nodoSolucion:  
+        profundidad = nodoSolucion[0].profundidad
+        print(f"La profundidad del árbol es: {profundidad}")
+    print(f"La cantidad de nodos expandidos es: {len(nodosExpandidos)}")
+    print("Posiciones de todos los nodos expandidos:")
+    for nodo in nodosExpandidos:
+        print(nodo.posicionActual)
