@@ -3,7 +3,6 @@ from objeto import Objeto
 from seachTree import searchTree
 import time
 import copy
-
 from utils import Mapa
 
 def SOLUCION(head: searchTree, solucion: list) -> None:
@@ -19,22 +18,6 @@ def SOLUCION(head: searchTree, solucion: list) -> None:
     if head.nodoPadre != None:
         solucion.append(head.operadorRealizado)
         SOLUCION(head.nodoPadre, solucion)
-    else:
-        pass
-
-def SOLUCION_MAPA(head: searchTree, solucion: list) -> None:
-    """
-    Añade recursivamente los operadores realizados
-    desde el ultimo de una rama, hasta el nodo 
-    raiz o nodo padre del arbol
-    
-    Args
-    - head (searchTree): ultimo nodo generado en la solucion
-    - solucion (list): lista donde se guardaran los operadores
-    """    
-    if head.nodoPadre != None:
-        solucion.append(head.mapa)
-        SOLUCION_MAPA(head.nodoPadre, solucion)
     else:
         pass
 
@@ -75,6 +58,7 @@ def esMismoEstado(nodo, nodoCola) -> bool:
         return True
     else: 
         return False # Si se retorna False, se crea el hijo
+    
 
 def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     """
@@ -84,14 +68,39 @@ def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     Args 
     - posicionActual (tupla): posicion actual del astronauta, ej:. (a, b)
     - direccion (str): up | left | down | right
-    - listaObjetos (list): lista con los objetos y obstaculos del mapa
     """
     x, y = posicionActual
-
     if direccion == "up": return (x - 1, y)
     if direccion == "left": return (x, y - 1)
     if direccion == "down": return (x + 1, y)
     if direccion == "right": return (x, y + 1)
+
+
+def calcularHeuristica(listaObjetos: list[Objeto], nodo: searchTree, posicion: tuple) -> int:
+    """
+    Distancia Manhattan hasta la muestra más cercana en el mapa a la posicion actual del astronauta, divido 2,
+    ya que el astronauta puede tomar una nave, por lo que la heuristica debe ser menor a ese caso.
+    
+    Si ya juntó 3 muestras, la heurística vale 0.
+    """
+    if nodo.muestras >= 3:
+        return 0
+
+    x0, y0 = posicion
+    mejor = None
+    for i in range(len(listaObjetos)):
+            objeto: Objeto = listaObjetos[i]
+            if objeto.id == 6 and objeto.recogido == False:
+                d = (abs(x0 - objeto.posicion[0]) + abs(y0 - objeto.posicion[1]))/2
+                if mejor is None or d < mejor:
+                    mejor = d
+                    #print("Mejor heuristica actual: ", posicion, mejor)
+
+    if mejor is None:
+        # no hay muestras visibles, heurística neutra
+        return 0
+    return mejor
+
 
 def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAstronauta: tuple) -> list[list]:
         """
@@ -101,6 +110,7 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
         añade la nueva posicion del astronauta al mapa
 
         Args
+        - listaObjetos (list[Objeto]): lista de objetos en el mapa
         - head (searchTree): nodo padre
         - nuevaPosicionAstronauta (tupla): coordenada de la nueva posicion del astronauta ej:. (a, b)
 
@@ -117,8 +127,8 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
 
         # Si el astronauta paso por un objeto, se vuelven a colocar 
         # los objetos en el mapa al moverse el astronauta
-        
-        posicionNave = (0, 0)
+
+        # posicionNave = (0, 0)
 
         for i in range(len(listaObjetos)):
             objeto: Objeto = listaObjetos[i]
@@ -141,7 +151,7 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
                 elif head.tieneNave == False and head.movimientosNave == 0: # Si el astronauta no tiene nave, ni movimientos, se inserta en la ultima posicion guardada
                     newMapa[objeto.posicion[0]][objeto.posicion[1]]= objeto.id
                     newMapa[x][y] = 2
-            break
+            
 
         return newMapa
 
@@ -154,6 +164,7 @@ def cantidadMuestrasCientificas(listaObjetos: list[Objeto], head: searchTree, po
     en 1
 
     Args
+    - listaObjetos (list[Objeto]): lista de objetos en el mapa
     - head (searchTree): nodo padre
     - posicion (tupla): nueva posicion a la que se movera el astronauta
 
@@ -170,19 +181,21 @@ def cantidadMuestrasCientificas(listaObjetos: list[Objeto], head: searchTree, po
     else: 
         return head.muestras
 
-def totalEnergia(head: searchTree) -> float:
+def totalEnergia(head: searchTree, posicion: tuple, tieneNave: bool) -> float:
     """
-    Se verifica si el nodo padre tiene nave, en caso de que
-    la tenga se aumenta en .5 la energia en caso contrario en 1 
-  
-    Args 
-    - head (searchTree): nodo padre 
-
-    Return 
-    - cantidad total de energia gastada (float)
+    Se le agregaron los costos segun el terreno, 3 para rocoso y 5 para volcanico, 
+    tambien se agrego el bool tieneNave de la funcion crearHijo, ya que si se extrae el atributo "tieneNave"
+    de head, este nos daria la informacion del nodo padre, la cual podria ser diferente a la del hijo que se esta creando.
     """
-    if head.tieneNave == False: 
-        return head.energiaTotalGastada + 1
+    x, y = posicion
+    if tieneNave == False:
+        if head.mapa[x][y] == 3:
+            return head.energiaTotalGastada + 3
+        elif head.mapa[x][y] == 4:
+            return head.energiaTotalGastada + 5
+        else:
+            return head.energiaTotalGastada + 1
+    
     else: 
         return head.energiaTotalGastada + 0.5
 
@@ -202,157 +215,130 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
     x, y = posicion
     if head.tieneNave==True and head.movimientosNave>=1:
         return True
-    elif head.tieneNave==False and head.mapa[x][y] == 5 and head.movimientosNave == 20:
+    elif head.tieneNave==False and head.mapa[x][y] == 5: 
         return True
     else:
         return False
 
-def movimientosRestantesNave(head: searchTree) -> int:
-    """
-    Cuenta cuantos movimientos disponibles tiene la nave
-
-    Args
-    - head (searchTree): nodo padre
-
-    Return
-    - cantidad de movimientos restantes (int)
-    """
-    if head.tieneNave == True and head.movimientosNave >= 1:
+def movimientosRestantesNave(head: searchTree, tieneNave: bool) -> int:
+    if tieneNave == True and head.movimientosNave > 0:
         return head.movimientosNave - 1
     else:
         return head.movimientosNave
 
 def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) -> None:
-    """
-    Se crea y añade un nodo hijo al nodo padre
 
-    Args
-    - nodo (searchTree): nodo padre
-    - direccion (str): up | left | down | right
-    - nuevaPosicionAstronauta (tupla): coordenadas de la nueva posicion del astronauta ej:. (a, b)
-    """
-    listaObjetos: list[Objeto] = copy.deepcopy(nodo.listaObjetos)
-
-    newMapa = actualizarMapa(listaObjetos, nodo, nuevaPosicionAstronauta)
-    posicion = nuevaPosicionAstronauta
-    muestras = cantidadMuestrasCientificas(listaObjetos, nodo, nuevaPosicionAstronauta)
-    energiaGastada = totalEnergia(nodo)
-    tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
-    movimientosNave = movimientosRestantesNave(nodo)
-
-    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos)
-    return hijo
+    posicion = nuevaPosicionAstronauta 
+    listaObjetos = copy.deepcopy(nodo.listaObjetos)
+    muestras = cantidadMuestrasCientificas(listaObjetos, nodo, posicion)
+    newMapa = actualizarMapa(listaObjetos, nodo, posicion)
+    tieneNave = nosMontamosEnNave(nodo, posicion)
+    movimientosNave = movimientosRestantesNave(nodo, tieneNave)
+    energiaGastada = totalEnergia(nodo, posicion, tieneNave)
+    #A diferencia del costoUniforme, aqui se debe calcular la heuristica para cada nodo
+    heuristica= calcularHeuristica(nodo.listaObjetos, nodo, posicion)
+    
+    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, 
+                      operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos, heuristica=heuristica)
+    nodo.añadirHijo(hijo)
 
 def traerHijos(nodo: searchTree, direcciones: dict) -> None: 
-    """
-    Busca las casillas a las que el astronauta   
-    puede moverse, luego verifica si en el pasado ya paso por la casilla,
-    si ya paso y el estado del nodo hijo es igual al padre o nodo encontrado, se detiene.
-    Si sigue, crea un hijo y lo añade al nodo padre.
-    los hijos ya tienen el movimiento y posicion realizada.
-
-    Args
-    - nodo (searchTree): nodo padre
-    - direcciones (dict): diccionario con los movimientos permitidos en el juego
-    """
     for i in range(1, len(direcciones) + 1):
         posicionAstronauta: tuple = nodo.posicionActual
-
         if nodo.puedoMoverme(direcciones[i], posicionAstronauta):
             nuevaPosicionAstronauta = nuevaPosicion(nodo.posicionActual, direcciones[i])
-
             bool, nodoSimilar = yaPasePorAqui(nodo, nuevaPosicionAstronauta)
-            hijo = crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta) 
-            
             if bool:
-                if esMismoEstado(hijo, nodoSimilar): 
-                    pass # Ya no hace nada se detiene la rama
-                else: 
-                    nodo.añadirHijo(hijo) # El estado no es el mismo entonces puede seguir 
+                if esMismoEstado(nodo, nodoSimilar): 
+                    pass
+                else:
+                    crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta)
             else:
-                nodo.añadirHijo(hijo)
+                crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta)
 
-def meterHijosEnColaEntrada(cola: deque, hijos: list):
+def meterHijosEnlistaEntrada(lista: list, hijos: list):
   for i in range(len(hijos)):  
-    cola.append(hijos[i])
+    lista.append(hijos[i])
 
-def meterNodoColaSalida(cola: deque, nodo):
-   cola.append(nodo)
+def meterNodoListaSalida(lista: list, nodo):
+   lista.append(nodo)
+
+def menorHeuristica(lista: list) -> searchTree:
+    """
+    Busca el nodo con menor heuristica
+    en la lista de entrada, lo elimina de la lista
+    y lo retorna
+
+    Args
+    - cola (list): lista de nodos
+
+    Return
+    - nodo con menor energia (searchTree)
+    """
+    menor = float('inf')
+    for i in range(len(lista)):
+        if lista[i].getHeuristica() < menor:
+            menor = lista[i].getHeuristica()
+            indice = i
+    return lista.pop(indice)
 
 def expandir(nodo: searchTree, direcciones: dict):
     """
-    Busca los hijos de un nodo, despues añade los hijos al nodo
+    Busca los hijos de un nodo, 
     luego verifica si un nodo es una meta, 
     si no es meta ingresa los hijos en la cola de entrada, 
     y para terminar saca el nodo actual y lo mete a la cola de salida
     """
+    traerHijos(nodo, direcciones) # expandir
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        SOLUCION_MAPA(nodo, solucionMapa)
-        #print("llegue a la meta"); 
-        nodo.imprimirInformacion()
-        return False
+        print("llegue a la meta")
+        print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
+        salirBucle()
     else: 
-        traerHijos(nodo, direcciones) # expandir
-        meterHijosEnColaEntrada(colaEntrada, nodo.hijos)
-        meterNodoColaSalida(colaSalida, nodo)
-        return True
-    
+        meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
+        meterNodoListaSalida(listaSalida, nodo)
 
-def resolver_amplitud(Mapa: list[list[int]]) -> list:
-    """
-    Funcion principal que pone en marcha el 
-    algoritmo de busqueda por amplitud
-    """
-    
-    nodoRaiz = searchTree(Mapa)
-    nodoRaiz.posicionAstronauta()
-    nodoRaiz.posicionObjetos()
+def salirBucle():
+    """Llave de salida del bucle"""
+    global key
+    key = False
 
-    colaEntrada.append(nodoRaiz)
-
-    key = True
+def resolver_avara(Mapa: list[list]) -> list:
+    raiz = searchTree(Mapa)
+    raiz.posicionAstronauta()
+    raiz.posicionObjetos()
+    listaEntrada.append(raiz)
 
     while key:
-        primerElemento: searchTree = colaEntrada.popleft()
-
-        key = expandir(primerElemento, direcciones)
-
-        primerElemento.printMapa()
-        primerElemento.imprimirInformacion()
-        #print("\n\n----------------------------------------")
+        menorNodo: searchTree = menorHeuristica(listaEntrada)
+        #print("Heuristica del nodo seleccionado: ", menorNodo.posicionActual, menorNodo.getHeuristica())
+        #key = False
+        #menorNodo.printMapa()
+        #menorNodo.imprimirInformacion()
+        expandir(menorNodo, direcciones)
 
     if key==False:
         solucion.reverse()
         return solucion
-        
-    print("Solucion encontrada por amplitud")
 
-colaEntrada = deque()
-colaSalida = deque()
+listaEntrada = list()
+listaSalida = list()
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 
 nodoSolucion: list = []
 solucion = []
-solucionMapa: list[ list[list] ] = []
+
+key = True
 
 
 if __name__ == "__main__":
-
-    start: float = time.time(); 
-    resolver_amplitud(Mapa)
+    start: float = time.time()
+    solucion = resolver_avara(Mapa)
     end: float = time.time()
-
-    print(f"La cantidad de nodos expandidos es: {len(colaSalida) + 1}")
-    print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
+    print("pasos: ", solucion)
+    print("nodos expandidos: ", len(listaSalida) + 1)
+    print("profundidad: ", nodoSolucion[0].profundidadArbol())
     print(f"La función tardó {end - start:.4f} segundos")
-    print(solucion)
-
-# print("\n\n")
-# solucionMapa.reverse()
-# for mapa in solucionMapa:
-#     for lista in mapa:
-#         print(lista)
-#     print("-------------------------------")

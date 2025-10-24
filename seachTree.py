@@ -2,7 +2,7 @@ from objeto import Objeto
 import time
 
 class searchTree:
-    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, listaObjetos: list[Objeto] = list()):
+    def __init__(self, mapa: list[list], posicionActual: tuple = (0, 0), muestras: int = 0, energiaTotalGastada: float = 0, tieneNave: bool = False, movimientosNave: int = 20, operadorRealizado: str = None, hijos: list = list(), nodoPadre = None, listaObjetos: list[Objeto] = list(), heuristica: int = 0):
         self.mapa = mapa
         self.posicionActual = posicionActual
         self.muestras = muestras
@@ -13,6 +13,7 @@ class searchTree:
         self.hijos = hijos
         self.nodoPadre = nodoPadre
         self.listaObjetos = listaObjetos
+        self.heuristica = heuristica
 
     def posicionObjetos(self) -> None:
         """
@@ -36,6 +37,9 @@ class searchTree:
 
     def getEnergiaTotalGastada(self):
         return self.energiaTotalGastada
+    
+    def getHeuristica(self):
+        return self.heuristica
     
     def posicionAstronauta(self):
         """Busca la posicion del astronauta en el mapa y la añade al objeto creado invocador"""
@@ -133,8 +137,9 @@ class searchTree:
 
     def imprimirInformacion(self) -> None:
         """Imprime la informacion del nodo"""
-        #if self.nodoPadre == None:
-            #print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}, lista de objetos: {self.listaObjetos}")
-        #else:
-            #print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
-
+        '''
+        if self.nodoPadre == None:
+            print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}, lista de objetos: {self.listaObjetos}")
+        else:
+            print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
+        '''

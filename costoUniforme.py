@@ -84,6 +84,7 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
         añade la nueva posicion del astronauta al mapa
 
         Args
+        - listaObjetos (list[Objeto]): lista de objetos en el mapa
         - head (searchTree): nodo padre
         - nuevaPosicionAstronauta (tupla): coordenada de la nueva posicion del astronauta ej:. (a, b)
 
@@ -137,6 +138,7 @@ def cantidadMuestrasCientificas(listaObjetos: list[Objeto], head: searchTree, po
     en 1
 
     Args
+    - listaObjetos (list[Objeto]): lista de objetos en el mapa
     - head (searchTree): nodo padre
     - posicion (tupla): nueva posicion a la que se movera el astronauta
 
@@ -280,8 +282,8 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        #print("llegue a la meta")
-        #print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
+        print("llegue a la meta")
+        print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
@@ -308,13 +310,8 @@ def resolver_uniforme(Mapa: list[list]) -> list:
         solucion.reverse()
         return solucion
 
-#listaObjetos = posicionObjetos()
-#Tree = searchTree(Mapa)
-#Tree.posicionAstronauta()
-
 listaEntrada = list()
 listaSalida = list()
-#listaEntrada.append(Tree)
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 
@@ -332,4 +329,3 @@ if __name__ == "__main__":
     print("nodos expandidos: ", len(listaSalida) + 1)
     print("profundidad: ", nodoSolucion[0].profundidadArbol())
     print(f"La función tardó {end - start:.4f} segundos")
-

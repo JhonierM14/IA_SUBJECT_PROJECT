@@ -5,7 +5,6 @@ import time
 import copy
 from utils import Mapa
 
-
 def SOLUCION(head: searchTree, solucion: list) -> None:
     """
     Añade recursivamente los operadores realizados
@@ -21,7 +20,6 @@ def SOLUCION(head: searchTree, solucion: list) -> None:
         SOLUCION(head.nodoPadre, solucion)
     else:
         pass
-
 
 def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
     """
@@ -43,7 +41,6 @@ def yaPasePorAqui(nodoPadre, nuevaPosicionAstronauta) -> tuple[bool, object]:
         return (True, nodoPadre)
     else:
         return yaPasePorAqui(nodoPadre.nodoPadre, nuevaPosicionAstronauta)
-
 
 
 def esMismoEstado(nodo, nodoCola) -> bool:
@@ -77,7 +74,6 @@ def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     if direccion == "left": return (x, y - 1)
     if direccion == "down": return (x + 1, y)
     if direccion == "right": return (x, y + 1)
-
 
 def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAstronauta: tuple) -> list[list]:
     """
@@ -143,7 +139,6 @@ def cantidadMuestrasCientificas(head: searchTree, listaObjetos: list[Objeto], po
         return head.muestras + 1
     return head.muestras
 
-
 def totalEnergia(head: searchTree) -> float:
     """
     Se verifica si el nodo padre tiene nave, en caso de que
@@ -196,7 +191,6 @@ def movimientosRestantesNave(head: searchTree) -> int:
     else:
         return head.movimientosNave
 
-
 def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple, listaObjetos: list[Objeto]) -> searchTree:
     
     newMapa = actualizarMapa(listaObjetos, nodo, nuevaPosicionAstronauta)
@@ -219,12 +213,11 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple, 
     )
     return hijo
 
-
 def traerHijos(nodo: searchTree, direcciones: dict, listaObjetos: list[Objeto]) -> None:
     '''
-    Genera los hijos válidos del nodo actual según las direcciones posibles.
-    Se verifica si ya pasó por una posición y si el estado es el mismo
-    para evitar ciclos, pero permite devolverse si el estado cambió.
+    Genera los hijos validos del nodo actual según las direcciones posibles.
+    Se verifica si ya pasó por una posición y si si el estael estado es el mismo
+    para evitar ciclos, pero permite devolverse do cambio
     '''
     for i in range(1, len(direcciones) + 1):
         if nodo.puedoMoverme(direcciones[i], nodo.posicionActual):
@@ -237,9 +230,8 @@ def traerHijos(nodo: searchTree, direcciones: dict, listaObjetos: list[Objeto]) 
             else:
                 nodo.añadirHijo(hijo)
 
-
 def expandir(nodo: searchTree, direcciones: dict) -> bool:
-    """Expande el nodo actual y agrega sus hijos a la pila. Retorna False si se llega a la meta."""
+    
     listaObjetos = nodo.listaObjetos  
     traerHijos(nodo, direcciones, listaObjetos)  
     pilaSalida.append(nodo) 
@@ -247,7 +239,6 @@ def expandir(nodo: searchTree, direcciones: dict) -> bool:
     for hijo in nodo.hijos:
         pilaEntrada.append(hijo)
 
-   
     for hijo in nodo.hijos:
         if hijo.esMeta():
             nodoSolucion.append(hijo)
@@ -256,13 +247,11 @@ def expandir(nodo: searchTree, direcciones: dict) -> bool:
 
     return True
 
-
 def resolver_profundidad(Mapa: list[list[int]]) -> list:
     
     nodoRaiz = searchTree(Mapa)
     nodoRaiz.posicionAstronauta()
     nodoRaiz.posicionObjetos()
-
     pilaEntrada.append(nodoRaiz)
 
     key = True
@@ -272,29 +261,24 @@ def resolver_profundidad(Mapa: list[list[int]]) -> list:
             print("No se encontró solución.")
             break
 
-        actual: searchTree = pilaEntrada.pop()  # Diferencia con amplitud (pop en lugar de popleft)
+        actual: searchTree = pilaEntrada.pop() 
         key = expandir(actual, direcciones)
 
         actual.printMapa()
         actual.imprimirInformacion()
         
-
     if not key:
         solucion.reverse()
         return solucion
-
     print("Solución encontrada por profundidad")
 
-
-pilaEntrada = deque() # pila de nodos a explorar
-pilaSalida = deque() # nodos ya expandidos
+pilaEntrada = deque() 
+pilaSalida = deque() 
 
 direcciones = {1: "up", 2: "left", 3: "down", 4: "right"}
 
 nodoSolucion: list = []
 solucion = []
-solucionMapa: list[list[list]] = []
-
 
 if __name__ == "__main__":
 

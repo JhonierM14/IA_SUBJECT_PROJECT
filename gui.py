@@ -2,6 +2,9 @@ from utils import convertir_matriz_numerica
 from amplitud import resolver_amplitud, colaSalida as colaSalidaAmplitud, nodoSolucion as nodoSolucionAmplitud
 from profundidad import resolver_profundidad, nodoSolucion as nodoSolucionProfundidad, pilaSalida as pilaSalidaProfundidad
 from costoUniforme import resolver_uniforme, nodoSolucion, listaSalida
+from avara import resolver_avara, nodoSolucion as nodoSolucionAvara, listaSalida as listaSalidaAvara
+from estrella import resolver_estrella, nodoSolucion as nodoSolucionEstrella, listaSalida as listaSalidaEstrella
+
 from amplitud import resolver_amplitud
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -75,21 +78,6 @@ imagenes = {
 
 botonArchivo = tk.Button(ventana_tablero, text="Mundo", command=cargar_mundo)
 botonArchivo.place(x=900, y=180)
-# Clase puente para que amplitud.py no falle al llamar posicionObjetos()
-class MapaWrapper:
-    def __init__(self, matriz):
-        self.matriz = matriz
-
-    def posicionObjetos(self):
-        # Método vacío, solo existe para que el algoritmo no falle
-        pass
-
-    # Estos dos métodos permiten que el objeto se comporte como una lista
-    def __iter__(self):
-        return iter(self.matriz)
-
-    def __getitem__(self, idx):
-        return self.matriz[idx]
 
 # Imagenes en la matriz
 def iniciar_tablero():
@@ -136,7 +124,7 @@ def mostrar_resultados():
     
     seleccion = subOpciones.get()
     
-    if seleccion in ["Amplitud", "Profundidad evitando ciclo"]:
+    if seleccion in ["Amplitud", "Profundidad evitando ciclo", "Avara"]:
         costo_total = 0
     else:
         costo_total = nodo_final.getEnergiaTotalGastada()
@@ -147,7 +135,7 @@ def mostrar_resultados():
               f"Nodos expandidos: {ventana.nodos_expandidos}\n"
               f"Profundidad:{ventana.nodo_final.profundidadArbol()} \n"
               f"Costo total:{costo_total} \n"
-              f"Tiempo: {tiempo_computo:.4f}  seg")
+              f"Tiempo: {tiempo_computo:.4f} seg")
     )
 
     # Botón para cerrar
@@ -167,6 +155,7 @@ def cerrar_programa():
 
 # Ejecucion del algoritmo
 def ejecutar_algoritmo_gui():
+    
     # Desactivar controles
     for w in (botonArchivo, boton_buscar, despegable, subOpciones, botonStart):
         w.config(state="disabled")
@@ -178,8 +167,7 @@ def ejecutar_algoritmo_gui():
  
     # Ejecutar algoritmo
     if seleccion == "Amplitud":
-        mapa_envuelto = MapaWrapper(ventana.mapa_numerico)
-        camino = resolver_amplitud(mapa_envuelto)
+        camino = resolver_amplitud(ventana.mapa_numerico)
         ventana.nodo_final = nodoSolucionAmplitud[0] 
         ventana.camino = camino
         ventana.nodos_expandidos = len(colaSalidaAmplitud) + 1  
@@ -195,8 +183,19 @@ def ejecutar_algoritmo_gui():
         ventana.nodo_final = nodoSolucionProfundidad[0] 
         ventana.camino = camino
         ventana.nodos_expandidos = len(pilaSalidaProfundidad) + 1
+        
+    elif seleccion == "Avara":
+        camino = resolver_avara(ventana.mapa_numerico)
+        ventana.nodo_final = nodoSolucionAvara[0]
+        ventana.camino = camino
+        ventana.nodos_expandidos = len(listaSalidaAvara) + 1
+        
+    elif seleccion == "A*":
+        camino = resolver_estrella(ventana.mapa_numerico)
+        ventana.nodo_final = nodoSolucionEstrella[0]
+        ventana.camino = camino
+        ventana.nodos_expandidos = len(listaSalidaEstrella)
 
-    
     recorrer_camino()
 
 # Animacion del astronauta
@@ -228,7 +227,6 @@ def recorrer_camino():
         x = columna * celda + celda // 2
         y = fila * celda + celda // 2
 
-        # Mover astronauta
         canvas.coords(ventana.astronauta, x, y)
         canvas.tag_raise(ventana.astronauta)
 
