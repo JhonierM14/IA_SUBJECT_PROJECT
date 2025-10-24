@@ -76,6 +76,32 @@ def nuevaPosicion(posicionActual: tuple, direccion: str) -> tuple:
     if direccion == "right": return (x, y + 1)
 
 
+def calcularHeuristica(listaObjetos: list[Objeto], nodo: searchTree, posicion: tuple) -> int:
+    """
+    Distancia Manhattan hasta la muestra más cercana en el mapa a la posicion actual del astronauta, divido 2,
+    ya que el astronauta puede tomar una nave, por lo que la heuristica debe ser menor a ese caso.
+
+    Si ya juntó 3 muestras, la heurística vale 0.
+    """
+    if nodo.muestras >= 3:
+        return 0
+
+    x0, y0 = posicion
+    mejor = None
+    for i in range(len(listaObjetos)):
+            objeto: Objeto = listaObjetos[i]
+            if objeto.id == 6 and objeto.recogido == False:
+                d = (abs(x0 - objeto.posicion[0]) + abs(y0 - objeto.posicion[1]))/2
+                if mejor is None or d < mejor:
+                    mejor = d
+                    print("Mejor heuristica actual: ", posicion, mejor)
+
+    if mejor is None:
+        # no hay muestras visibles, heurística neutra
+        return 0
+    return mejor
+
+
 def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAstronauta: tuple) -> list[list]:
         """
         Copia el mapa del nodo padre, luego modifica la casilla 
@@ -209,8 +235,10 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) 
     tieneNave = nosMontamosEnNave(nodo, posicion)
     movimientosNave = movimientosRestantesNave(nodo, tieneNave)
     energiaGastada = totalEnergia(nodo, posicion, tieneNave)
+    heuristica= calcularHeuristica(nodo.listaObjetos, nodo, posicion)
     
-    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos)
+    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, 
+                      operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos, heuristica=heuristica)
     nodo.añadirHijo(hijo)
 
 
@@ -228,23 +256,6 @@ def traerHijos(nodo: searchTree, direcciones: dict) -> None:
             else:
                 crearHijo(nodo, direcciones[i], nuevaPosicionAstronauta)
 
-def posicionObjetos() -> None:
-    """
-    Almacena en una lista la posicion de los obstaculos y objetos en el mapa
-    """
-    lista = list()
-    for i in range(10):
-        for j in range(10):
-            if Mapa[i][j] == 3:
-                lista.append(Objeto(3, "terreno rocoso", (i, j)))
-            elif Mapa[i][j] == 4:
-                lista.append(Objeto(4, "terreno volcanico", (i, j)))
-            elif Mapa[i][j] == 5:
-                lista.append(Objeto(5, "nave", (i, j)))
-            elif Mapa[i][j] == 6:
-                lista.append(Objeto(6, "muestra cientifica", (i, j), False))
-    return lista
-
 def meterHijosEnlistaEntrada(lista: list, hijos: list):
   for i in range(len(hijos)):  
     lista.append(hijos[i])
@@ -252,22 +263,20 @@ def meterHijosEnlistaEntrada(lista: list, hijos: list):
 def meterNodoListaSalida(lista: list, nodo):
    lista.append(nodo)
 
-def menorEnergia(lista: list) -> searchTree:
+def menorEstimado(lista: list) -> searchTree:
     """
-    Busca el nodo con menor energia gastada
-    en la lista de entrada, lo elimina de la lista
-    y lo retorna
+    Busca el nodo con menor costo estimado, osea la heuristica del nodo mas su energia gastada.
 
     Args
-    - cola (list): lista de nodos
+    - lista (list): lista de nodos
 
     Return
-    - nodo con menor energia (searchTree)
+    - nodo con menor costo estimado (searchTree), y lo elimina de la lista
     """
     menor = float('inf')
     for i in range(len(lista)):
-        if lista[i].getEnergiaTotalGastada() < menor:
-            menor = lista[i].getEnergiaTotalGastada()
+        if (lista[i].getHeuristica() + lista[i].getEnergiaTotalGastada()) < menor:
+            menor = (lista[i].getHeuristica() + lista[i].getEnergiaTotalGastada())
             indice = i
     return lista.pop(indice)
 
@@ -294,21 +303,23 @@ def salirBucle():
     global key
     key = False
 
-def resolver_uniforme(Mapa: list[list]) -> list:
+def resolver_estrella(Mapa: list[list]) -> list:
     raiz = searchTree(Mapa)
     raiz.posicionAstronauta()
     raiz.posicionObjetos()
     listaEntrada.append(raiz)
 
     while key:
-        menorNodo: searchTree = menorEnergia(listaEntrada)
-        menorNodo.printMapa()
-        menorNodo.imprimirInformacion()
+        menorNodo: searchTree = menorEstimado(listaEntrada)
+        print("Heuristica del nodo seleccionado: ", menorNodo.posicionActual, menorNodo.getHeuristica())
+        #menorNodo.printMapa()
+        #menorNodo.imprimirInformacion()
         expandir(menorNodo, direcciones)
 
     if key==False:
         solucion.reverse()
         return solucion
+
 
 listaEntrada = list()
 listaSalida = list()
@@ -323,7 +334,7 @@ key = True
 
 if __name__ == "__main__":
     start: float = time.time()
-    solucion = resolver_uniforme(Mapa)
+    solucion = resolver_estrella(Mapa)
     end: float = time.time()
     print("pasos: ", solucion)
     print("nodos expandidos: ", len(listaSalida) + 1)

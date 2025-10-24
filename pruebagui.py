@@ -8,6 +8,8 @@ import time
 from amplitud import *
 from avara import resolver_avara
 from costoUniforme import resolver_uniforme
+from avara import resolver_avara
+from estrella import resolver_estrella
 import profundidad
 from utils import convertir_matriz_numerica
 
@@ -217,7 +219,7 @@ def iniciar_tablero():
         if algoritmo == "Avara":
             camino = resolver_avara(convertir_matriz_numerica(ventana.matriz))
         elif algoritmo == "A*":
-            # camino = resolver_A(convertir_matriz_numerica(ventana.matriz))
+            camino = resolver_estrella(convertir_matriz_numerica(ventana.matriz))
             pass
 
     ventana.camino = camino
