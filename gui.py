@@ -1,8 +1,15 @@
+from utils import convertir_matriz_numerica
+from amplitud import resolver_amplitud, colaSalida as colaSalidaAmplitud, nodoSolucion as nodoSolucionAmplitud
+from profundidad import resolver_profundidad, nodoSolucion as nodoSolucionProfundidad, pilaSalida as pilaSalidaProfundidad
+from costoUniforme import resolver_uniforme, nodoSolucion, listaSalida
+from amplitud import resolver_amplitud
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import time
-import funciones_algoritmos as fa
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Ventana principal
 ventana = tk.Tk()
@@ -14,7 +21,8 @@ ventana_tablero = tk.Frame(ventana)
 ventana_tablero.place(relwidth=1, relheight=1)
 
 # Fondo
-fondo_ventana = ImageTk.PhotoImage(Image.open("assets/martefondo.png").resize((1200, 650)))
+ruta_fondo = os.path.join(BASE_DIR, "assets", "martefondo.png")
+fondo_ventana = ImageTk.PhotoImage(Image.open(ruta_fondo).resize((1200, 650)))
 tk.Label(ventana_tablero, image=fondo_ventana).place(relwidth=1, relheight=1)
 
 # Cuadrícula
@@ -49,21 +57,39 @@ def archivo_txt():
 def cargar_mundo():
     matriz = archivo_txt()
     if matriz:
+        matriz_numerica = convertir_matriz_numerica(matriz)
+        ventana.mapa_numerico = matriz_numerica
         ventana.matriz = matriz
+        ventana.mapa_numerico = matriz_numerica
         iniciar_tablero()
 
 # Imagenes
 imagenes = {
-    "1": ImageTk.PhotoImage(Image.open("assets/muro.png").resize((50, 50))),
-    "2": ImageTk.PhotoImage(Image.open("assets/astronauta.png").resize((50, 50))),
-    "3": ImageTk.PhotoImage(Image.open("assets/piedras.png").resize((50, 50))),
-    "4": ImageTk.PhotoImage(Image.open("assets/volcan.png").resize((50, 50))),
-    "5": ImageTk.PhotoImage(Image.open("assets/cohete.png").resize((50, 50))),
-    "6": ImageTk.PhotoImage(Image.open("assets/muestra.png").resize((50, 50)))
+    "1": ImageTk.PhotoImage(Image.open(os.path.join(BASE_DIR, "assets", "muro.png")).resize((50, 50))),
+    "2": ImageTk.PhotoImage(Image.open(os.path.join(BASE_DIR, "assets", "astronauta.png")).resize((50, 50))),
+    "3": ImageTk.PhotoImage(Image.open(os.path.join(BASE_DIR, "assets", "piedras.png")).resize((50, 50))),
+    "4": ImageTk.PhotoImage(Image.open(os.path.join(BASE_DIR, "assets", "volcan.png")).resize((50, 50))),
+    "5": ImageTk.PhotoImage(Image.open(os.path.join(BASE_DIR, "assets", "cohete.png")).resize((50, 50))),
+    "6": ImageTk.PhotoImage(Image.open(os.path.join(BASE_DIR, "assets", "muestra.png")).resize((50, 50)))
 }
 
 botonArchivo = tk.Button(ventana_tablero, text="Mundo", command=cargar_mundo)
 botonArchivo.place(x=900, y=180)
+# Clase puente para que amplitud.py no falle al llamar posicionObjetos()
+class MapaWrapper:
+    def __init__(self, matriz):
+        self.matriz = matriz
+
+    def posicionObjetos(self):
+        # Método vacío, solo existe para que el algoritmo no falle
+        pass
+
+    # Estos dos métodos permiten que el objeto se comporte como una lista
+    def __iter__(self):
+        return iter(self.matriz)
+
+    def __getitem__(self, idx):
+        return self.matriz[idx]
 
 # Imagenes en la matriz
 def iniciar_tablero():
@@ -106,14 +132,22 @@ subOpciones.place(x=840, y=330)
 def mostrar_resultados():
     tiempo_final = time.time()
     tiempo_computo = tiempo_final - ventana.tiempo_inicio
-
+    nodo_final = ventana.nodo_final
+    
+    seleccion = subOpciones.get()
+    
+    if seleccion in ["Amplitud", "Profundidad evitando ciclo"]:
+        costo_total = 0
+    else:
+        costo_total = nodo_final.getEnergiaTotalGastada()
+    
     lbl_resultado.config(
         text=(f"Informe:\n"
-              f"Algoritmo: {ventana.algoritmo}\n"
-              f"Nodos expandidos: {ventana.nodos_expand}\n"
-              f"Profundidad: {ventana.profundidad}\n"
-              f"Costo total: {ventana.costo_total:.2f}\n"
-              f"Tiempo: {tiempo_computo:.3f} seg")
+              f"Algoritmo: {seleccion} \n"
+              f"Nodos expandidos: {ventana.nodos_expandidos}\n"
+              f"Profundidad:{ventana.nodo_final.profundidadArbol()} \n"
+              f"Costo total:{costo_total} \n"
+              f"Tiempo: {tiempo_computo:.4f}  seg")
     )
 
     # Botón para cerrar
@@ -133,28 +167,36 @@ def cerrar_programa():
 
 # Ejecucion del algoritmo
 def ejecutar_algoritmo_gui():
-    tipo_busqueda, algoritmo = despegable.get(), subOpciones.get()
-
     # Desactivar controles
     for w in (botonArchivo, boton_buscar, despegable, subOpciones, botonStart):
         w.config(state="disabled")
 
     lbl_resultado.config(text="Ejecutando algoritmo, por favor espere...")
     ventana.update()
-
+    ventana.tiempo_inicio = time.time() 
+    seleccion = subOpciones.get()
+ 
     # Ejecutar algoritmo
-    camino, nombre_algoritmo, nodos_expandidos, profundidad_algoritmo, costo_total, tiempo_inicio = fa.ejecutar_algoritmo(
-        ventana.matriz, tipo_busqueda, algoritmo
-    )
+    if seleccion == "Amplitud":
+        mapa_envuelto = MapaWrapper(ventana.mapa_numerico)
+        camino = resolver_amplitud(mapa_envuelto)
+        ventana.nodo_final = nodoSolucionAmplitud[0] 
+        ventana.camino = camino
+        ventana.nodos_expandidos = len(colaSalidaAmplitud) + 1  
 
-    # Guardar resultados en variables globales
-    ventana.camino = camino
-    ventana.algoritmo = nombre_algoritmo
-    ventana.nodos_expand = nodos_expandidos
-    ventana.profundidad = profundidad_algoritmo
-    ventana.costo_total = costo_total
-    ventana.tiempo_inicio = tiempo_inicio
+    elif seleccion == "Costo uniforme":
+        camino = resolver_uniforme(ventana.mapa_numerico)
+        ventana.nodo_final = nodoSolucion[0]  
+        ventana.camino = camino
+        ventana.nodos_expandidos = len(listaSalida) + 1  
+        
+    elif seleccion == "Profundidad evitando ciclo":
+        camino = resolver_profundidad(ventana.mapa_numerico)
+        ventana.nodo_final = nodoSolucionProfundidad[0] 
+        ventana.camino = camino
+        ventana.nodos_expandidos = len(pilaSalidaProfundidad) + 1
 
+    
     recorrer_camino()
 
 # Animacion del astronauta
