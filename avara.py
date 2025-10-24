@@ -94,7 +94,6 @@ def calcularHeuristica(listaObjetos: list[Objeto], nodo: searchTree, posicion: t
                 d = (abs(x0 - objeto.posicion[0]) + abs(y0 - objeto.posicion[1]))/2
                 if mejor is None or d < mejor:
                     mejor = d
-                    print("Mejor heuristica actual: ", posicion, mejor)
 
     if mejor is None:
         # no hay muestras visibles, heurística neutra
@@ -294,8 +293,6 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta")
-        print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
@@ -314,10 +311,6 @@ def resolver_avara(Mapa: list[list]) -> list:
 
     while key:
         menorNodo: searchTree = menorHeuristica(listaEntrada)
-        print("Heuristica del nodo seleccionado: ", menorNodo.posicionActual, menorNodo.getHeuristica())
-        #key = False
-        #menorNodo.printMapa()
-        #menorNodo.imprimirInformacion()
         expandir(menorNodo, direcciones)
 
     if key==False:
@@ -333,14 +326,4 @@ nodoSolucion: list = []
 solucion = []
 
 key = True
-
-
-if __name__ == "__main__":
-    start: float = time.time()
-    solucion = resolver_avara(Mapa)
-    end: float = time.time()
-    print("pasos: ", solucion)
-    print("nodos expandidos: ", len(listaSalida) + 1)
-    print("profundidad: ", nodoSolucion[0].profundidadArbol())
-    print(f"La función tardó {end - start:.4f} segundos")
 

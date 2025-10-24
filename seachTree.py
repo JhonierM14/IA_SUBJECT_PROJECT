@@ -113,32 +113,3 @@ class searchTree:
         if self.nodoPadre != None:
             return 1 + self.nodoPadre.profundidadArbol()
 
-    def printMapa(self) -> None:
-        """
-        Imprime el mapa actual del nodo
-        """
-        for i in range(10):
-            line = ""
-            for j in range(10):
-                if j==0:
-                    line += (f"| {self.mapa[i][j]} |")
-                else:
-                    line += (f" {self.mapa[i][j]} |")
-            #print(line)
-        #print("-------------------------------------------------\n")
-
-    def imprimirPosicionHijos(self) -> None:
-        """Imprime la posicion de los hijos"""
-        hijos = ""
-        for i in range(len(self.hijos)):
-            x, y = self.hijos[i].posicionActual
-            hijos += f"hijo {i + 1}: " + "(" + str(x) + ", " + str(y) + ")" + " | "
-        #print(hijos)
-
-    def imprimirInformacion(self) -> None:
-        """Imprime la informacion del nodo"""
-        if self.nodoPadre == None:
-            print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre}, lista de objetos: {self.listaObjetos}")
-        else:
-            print(f"posicion: {self.posicionActual}, muestras: {self.muestras}, energiaTotal: {self.energiaTotalGastada}, tieneNave: {self.tieneNave}, movimientosNave: {self.movimientosNave}, operadorRealizado: {self.operadorRealizado}, \nhijos:{self.hijos}, nodoPadre: {self.nodoPadre.posicionActual}")
-

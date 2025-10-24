@@ -304,11 +304,6 @@ def resolver_A_info(matriz: List[List[str | int]]) -> Tuple[List[str], Dict[str,
                 "profundidad": actual.profundidadArbol(),
                 "tiempo_segundos": end - start,
             }
-            
-            print(f"La cantidad de nodos expandidos es: {info['nodos_expandidos']}")
-            print(f"La profundidad del arbol es: {info['profundidad']}")
-            print(f"La función tardó {info['tiempo_segundos']:.4f} segundos")
-            print(solucion)
             return solucion, info
 
         hijos = traerHijos(actual, direcciones)
@@ -322,10 +317,6 @@ def resolver_A_info(matriz: List[List[str | int]]) -> Tuple[List[str], Dict[str,
         "profundidad": 0,
         "tiempo_segundos": end - start,
     }
-    print(f"La cantidad de nodos expandidos es: {info['nodos_expandidos']}")
-    print(f"La profundidad del arbol es: {info['profundidad']}")
-    print(f"La función tardó {info['tiempo_segundos']:.4f} segundos")
-    print([])
     return [], info
 
 def resolver_A(matriz: List[List[str | int]]) -> List[str]:

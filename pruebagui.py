@@ -98,8 +98,6 @@ def cargar_mundo():
     matriz = archivo_txt()
     if matriz:
         ventana.matriz = matriz
-        print("Mundo cargado")
-        print("Matriz:", matriz)
     
         
 #--------------------
@@ -162,7 +160,6 @@ def muestras():
         for j, valor in enumerate(fila):              
             if valor == "6":
                 posiciones.append((i,j))
-    print("Posiciones de las muestras:", posiciones)
     return posiciones
 
 
@@ -178,7 +175,6 @@ def iniciar_tablero():
                     ventana.astronauta = mov
                     ventana.astronauta_fila = i
                     ventana.astronauta_col = j
-                    print(f"Austronauta en posicion: ({i},{j})")
                 if valor == "5":
                     ventana.nave_id = mov
 
@@ -230,7 +226,6 @@ def iniciar_tablero():
 # Funcion de movimiento 
 def recorrer_camino():
     if not hasattr(ventana, "camino") or not ventana.camino:
-        print("No hay camino calculado todavía.")
         return
     
     # Obtener la posición inicial del astronauta
@@ -257,9 +252,6 @@ def recorrer_camino():
             fila += df
             columna += dc
             coordenadas.append((fila, columna))
-            
-    print("Camino recorrido:", coordenadas)
-    print("Movimientos:", ventana.camino)
 
     fila = ventana.astronauta_fila
     columna = ventana.astronauta_col

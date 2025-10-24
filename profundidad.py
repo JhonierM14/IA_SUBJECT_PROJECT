@@ -51,7 +51,6 @@ def cantidadMuestrasCientificas(head: searchTree, posicion: tuple) -> int:
         for i in range(len(listaObjetos)):
             if listaObjetos[i].posicion == (x, y):
                 listaObjetos[i].recogido = True
-        print(f"Recogio muestra en {posicion} total: {head.muestras + 1}")
         return head.muestras + 1
     else: 
         return head.muestras
@@ -126,7 +125,6 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta")
         salirBucle()
     else:
         meterHijosEnPila(pila, nodo.hijos)
@@ -169,14 +167,3 @@ solucion = []
 nodosExpandidos = [] 
 key: bool = True
 
-if __name__ == "__main__":
-    start: float = time.time()
-    resolver_profundidad(Mapa)
-    end = time.time()
-    if nodoSolucion:  
-        profundidad = nodoSolucion[0].profundidad
-        print(f"La profundidad del árbol es: {profundidad}")
-    print(f"La cantidad de nodos expandidos es: {len(nodosExpandidos)}")
-    print("Posiciones de todos los nodos expandidos:")
-    for nodo in nodosExpandidos:
-        print(nodo.posicionActual)

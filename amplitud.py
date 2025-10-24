@@ -290,8 +290,6 @@ def expandir(nodo: searchTree, direcciones: dict):
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
         SOLUCION_MAPA(nodo, solucionMapa)
-        print("llegue a la meta"); 
-        nodo.imprimirInformacion()
         return False
     else: 
         traerHijos(nodo, direcciones) # expandir
@@ -319,15 +317,10 @@ def resolver_amplitud(Mapa: list[list[int]]) -> list:
 
         key = expandir(primerElemento, direcciones)
 
-        primerElemento.printMapa()
-        primerElemento.imprimirInformacion()
-        print("\n\n----------------------------------------")
-
     if key==False:
         solucion.reverse()
         return solucion
         
-    print("Solucion encontrada por amplitud")
 
 colaEntrada = deque()
 colaSalida = deque()
@@ -338,20 +331,3 @@ nodoSolucion: list = []
 solucion = []
 solucionMapa: list[ list[list] ] = []
 
-if __name__ == "__main__":
-
-    start: float = time.time(); 
-    resolver_amplitud(Mapa)
-    end: float = time.time()
-
-    print(f"La cantidad de nodos expandidos es: {len(colaSalida) + 1}")
-    print(f"La profundidad del arbol es: {nodoSolucion[0].profundidadArbol()}")
-    print(f"La función tardó {end - start:.4f} segundos")
-    print(solucion)
-
-# print("\n\n")
-# solucionMapa.reverse()
-# for mapa in solucionMapa:
-#     for lista in mapa:
-#         print(lista)
-#     print("-------------------------------")
