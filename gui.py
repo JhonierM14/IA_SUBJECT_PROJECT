@@ -11,6 +11,7 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import time
 import os
+import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -144,7 +145,7 @@ def mostrar_resultados():
         text="Reiniciar para probar otro algoritmo",
         font=("Arial", 10, "bold"),
         cursor="hand2",
-        command=cerrar_programa
+        command=reiniciar_programa
     )
     btn_salir.place(x=800, y=550, width=260, height=20)
 
@@ -152,6 +153,11 @@ def mostrar_resultados():
 def cerrar_programa():
     messagebox.showinfo("Smart Astronaut", "Hasta la próxima misión en Marte.")
     ventana.destroy()
+
+def reiniciar_programa():
+    """Ejercutar una nueva instancia del programa y cerrar la actual"""
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
 
 # Ejecucion del algoritmo
 def ejecutar_algoritmo_gui():

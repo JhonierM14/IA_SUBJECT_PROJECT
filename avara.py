@@ -138,7 +138,7 @@ def actualizarMapa(listaObjetos: list[Objeto], head: searchTree, nuevaPosicionAs
                 if head.tieneNave == False and head.movimientosNave == 20 and newMapa[x][y] != objeto.id:
                     newMapa[x][y] = 2 # el astronauta navega por el mapa sin estar cerca a la nave
                 elif head.tieneNave == False and head.movimientosNave == 20 and newMapa[x][y] == objeto.id: # Si el astronauta no tiene nave, hay dos opciones, la nave esta en la posicion inicial o el astronauta ya la utilizo y la dejo en otra posicion del mapa
-                    newMapa[x][y] = 5 # ya esta la nave en la casilla en la que me voy a mover
+                    newMapa[x][y] = 2 # ya esta la nave en la casilla en la que me voy a mover
                 elif head.tieneNave == True and head.movimientosNave == 20 and newMapa[x][y] != objeto.id:
                     newMapa[x][y] = 5 # el astronauta llega a la nave
                 elif head.tieneNave == True and head.movimientosNave >= 1: # Si el astronauta tiene nave, y movimientos se mueve con el astronauta

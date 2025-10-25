@@ -215,7 +215,7 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
     x, y = posicion
     if head.tieneNave==True and head.movimientosNave>=1:
         return True
-    elif head.tieneNave==False and head.mapa[x][y] == 5: 
+    elif head.tieneNave==False and head.mapa[x][y] == 5 and head.movimientosNave==20: 
         return True
     else:
         return False
