@@ -122,17 +122,19 @@ def mostrar_resultados():
     tiempo_final = time.time()
     tiempo_computo = tiempo_final - ventana.tiempo_inicio
     nodo_final = ventana.nodo_final
-    
     seleccion = subOpciones.get()
-
-    costo_total = nodo_final.getEnergiaTotalGastada()
+    
+    if seleccion in ["Amplitud", "Profundidad evitando ciclo"]:
+        costo_total = None
+    else:
+        costo_total = nodo_final.getEnergiaTotalGastada()
     
     lbl_resultado.config(
         text=(f"Informe:\n"
               f"Algoritmo: {seleccion} \n"
               f"Nodos expandidos: {ventana.nodos_expandidos}\n"
               f"Profundidad:{ventana.nodo_final.profundidadArbol()} \n"
-              f"Costo total:{costo_total} \n"
+              f"Costo total: {costo_total} \n"
               f"Tiempo: {tiempo_computo:.4f} seg")
     )
 
