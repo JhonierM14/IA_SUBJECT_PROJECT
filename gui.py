@@ -124,11 +124,8 @@ def mostrar_resultados():
     nodo_final = ventana.nodo_final
     
     seleccion = subOpciones.get()
-    
-    if seleccion in ["Amplitud", "Profundidad evitando ciclo", "Avara"]:
-        costo_total = 0
-    else:
-        costo_total = nodo_final.getEnergiaTotalGastada()
+
+    costo_total = nodo_final.getEnergiaTotalGastada()
     
     lbl_resultado.config(
         text=(f"Informe:\n"
