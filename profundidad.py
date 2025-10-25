@@ -264,13 +264,13 @@ def resolver_profundidad(Mapa: list[list[int]]) -> list:
         actual: searchTree = pilaEntrada.pop() 
         key = expandir(actual, direcciones)
 
-        actual.printMapa()
-        actual.imprimirInformacion()
+        #actual.printMapa()
+        #actual.imprimirInformacion()
         
     if not key:
         solucion.reverse()
         return solucion
-    print("Solución encontrada por profundidad")
+    #print("Solución encontrada por profundidad")
 
 pilaEntrada = deque() 
 pilaSalida = deque() 

@@ -290,8 +290,8 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta")
-        print("Energia total gastada(Costo): ", nodo.getEnergiaTotalGastada())
+        #print("llegue a la meta")
+        #print("Energia total gastada(Costo): ", nodo.getEnergiaTotalGastada())
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)

@@ -219,8 +219,8 @@ def recorrer_camino():
     def mover_astronauta(i=0):
         nonlocal fila, columna, usando_nave, pasos_nave, nave_mov
         if i >= len(ventana.camino):
-            print("Camino recorrido:", coordenadas)
-            print("Movimientos realizados:", ventana.camino)
+            #print("Camino recorrido:", coordenadas)
+            #print("Movimientos realizados:", ventana.camino)
             mostrar_resultados()
             return
 

@@ -3,7 +3,7 @@ from objeto import Objeto
 from seachTree import searchTree
 import time
 import copy
-from utils import MapaProblema
+from utils import Mapa
 
 def SOLUCION(head: searchTree, solucion: list) -> None:
     """
@@ -293,8 +293,8 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta")
-        print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
+        #print("llegue a la meta")
+        #print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
@@ -336,7 +336,7 @@ key = True
 
 if __name__ == "__main__":
     start: float = time.time()
-    solucion = resolver_avara(MapaProblema)
+    solucion = resolver_avara(Mapa)
     end: float = time.time()
     print("pasos: ", solucion)
     print("nodos expandidos: ", len(listaSalida) + 1)

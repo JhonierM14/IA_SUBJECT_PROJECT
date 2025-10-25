@@ -282,8 +282,8 @@ def expandir(nodo: searchTree, direcciones: dict):
     if nodo.esMeta():
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
-        print("llegue a la meta")
-        print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
+        #print("llegue a la meta")
+        #print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
@@ -302,8 +302,8 @@ def resolver_uniforme(Mapa: list[list]) -> list:
 
     while key:
         menorNodo: searchTree = menorEnergia(listaEntrada)
-        menorNodo.printMapa()
-        menorNodo.imprimirInformacion()
+        #menorNodo.printMapa()
+        #menorNodo.imprimirInformacion()
         expandir(menorNodo, direcciones)
 
     if key==False:

@@ -170,19 +170,21 @@ def cantidadMuestrasCientificas(listaObjetos: list[Objeto], head: searchTree, po
     else: 
         return head.muestras
 
-def totalEnergia(head: searchTree) -> float:
+def totalEnergia(head: searchTree, posicion: tuple, tieneNave: bool) -> float:
     """
-    Se verifica si el nodo padre tiene nave, en caso de que
-    la tenga se aumenta en .5 la energia en caso contrario en 1 
-  
-    Args 
-    - head (searchTree): nodo padre 
-
-    Return 
-    - cantidad total de energia gastada (float)
+    Se le agregaron los costos segun el terreno, 3 para rocoso y 5 para volcanico, 
+    tambien se agrego el bool tieneNave de la funcion crearHijo, ya que si se extrae el atributo "tieneNave"
+    de head, este nos daria la informacion del nodo padre, la cual podria ser diferente a la del hijo que se esta creando.
     """
-    if head.tieneNave == False: 
-        return head.energiaTotalGastada + 1
+    x, y = posicion
+    if tieneNave == False:
+        if head.mapa[x][y] == 3:
+            return head.energiaTotalGastada + 3
+        elif head.mapa[x][y] == 4:
+            return head.energiaTotalGastada + 5
+        else:
+            return head.energiaTotalGastada + 1
+    
     else: 
         return head.energiaTotalGastada + 0.5
 
@@ -236,8 +238,8 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) 
     newMapa = actualizarMapa(listaObjetos, nodo, nuevaPosicionAstronauta)
     posicion = nuevaPosicionAstronauta
     muestras = cantidadMuestrasCientificas(listaObjetos, nodo, nuevaPosicionAstronauta)
-    energiaGastada = totalEnergia(nodo)
     tieneNave = nosMontamosEnNave(nodo, nuevaPosicionAstronauta)
+    energiaGastada = totalEnergia(nodo, nuevaPosicionAstronauta, tieneNave)
     movimientosNave = movimientosRestantesNave(nodo)
 
     hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos)
@@ -319,15 +321,15 @@ def resolver_amplitud(Mapa: list[list[int]]) -> list:
 
         key = expandir(primerElemento, direcciones)
 
-        primerElemento.printMapa()
-        primerElemento.imprimirInformacion()
+        #primerElemento.printMapa()
+        #primerElemento.imprimirInformacion()
         #print("\n\n----------------------------------------")
 
     if key==False:
         solucion.reverse()
         return solucion
         
-    print("Solucion encontrada por amplitud")
+    #print("Solucion encontrada por amplitud")
 
 colaEntrada = deque()
 colaSalida = deque()
