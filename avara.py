@@ -3,7 +3,7 @@ from objeto import Objeto
 from seachTree import searchTree
 import time
 import copy
-from utils import Mapa
+from utils import MapaProblema
 
 def SOLUCION(head: searchTree, solucion: list) -> None:
     """
@@ -48,7 +48,7 @@ def esMismoEstado(nodo, nodoCola) -> bool:
     nodos se retorna True y la rama muere, en caso contraria sigue expandiendo.
 
     Args
-    - nodo (searchTree): nodo padre
+    - nodo (searchTree): nodo hijo actual
     - nodoCola (searchTree): nodo encontrado con el que se compara el estado
 
     Return
@@ -215,7 +215,7 @@ def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
     x, y = posicion
     if head.tieneNave==True and head.movimientosNave>=1:
         return True
-    elif head.tieneNave==False and head.mapa[x][y] == 5: 
+    elif head.tieneNave==False and head.mapa[x][y] == 5 and head.movimientosNave==20: 
         return True
     else:
         return False
@@ -336,7 +336,7 @@ key = True
 
 if __name__ == "__main__":
     start: float = time.time()
-    solucion = resolver_avara(Mapa)
+    solucion = resolver_avara(MapaProblema)
     end: float = time.time()
     print("pasos: ", solucion)
     print("nodos expandidos: ", len(listaSalida) + 1)
