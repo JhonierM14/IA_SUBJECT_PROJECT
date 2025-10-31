@@ -179,6 +179,7 @@ def ejecutar_algoritmo_gui():
 
     elif seleccion == "Costo uniforme":
         camino = resolver_uniforme(ventana.mapa_numerico)
+        print("Camino: ", camino)
         ventana.nodo_final = nodoSolucion[0]  
         ventana.camino = camino
         ventana.nodos_expandidos = len(listaSalida) + 1  

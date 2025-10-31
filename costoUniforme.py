@@ -173,26 +173,27 @@ def totalEnergia(head: searchTree, posicion: tuple, tieneNave: bool) -> float:
     else: 
         return head.energiaTotalGastada + 0.5
 
-def nosMontamosEnNave(head: searchTree, posicion: tuple) -> bool:
+def nosMontamosEnNave(head: searchTree, posicion: tuple) -> tuple[bool, bool]:
     """
-    Verifica si en la nueva posicion se encuentra la nave, en caso 
-    de que este la nave, se cambia el atributo a True, en caso
-    contrario a False. 
+    Verifica si en la nueva posicion se encuentra la nave o si el astronauta ya esta en la nave,
+    y si pasa eso, se asigna el primer atributo de la tupla a True, si no a False.
+    El segundo atributo de la tupla es True si el astronauta apenas se monta en la nave, y es False
+    si ya estaba montado en la nave o no hay nave en la posicion.
 
     Args
     - head (searchTree): nodo padre
     - posicion (tupla): nueva posicion del astronauta
 
     Return
-    - (bool)
+    - tuple[bool, bool]
     """
     x, y = posicion
     if head.tieneNave==True and head.movimientosNave>=1:
-        return True
+        return [True, False]
     elif head.tieneNave==False and head.mapa[x][y] == 5 and head.movimientosNave==20: 
-        return True
+        return [True, True]
     else:
-        return False
+        return [False, False]
 
 def movimientosRestantesNave(head: searchTree, tieneNave: bool) -> int:
     if tieneNave == True and head.movimientosNave > 0:
@@ -207,10 +208,13 @@ def crearHijo(nodo: searchTree, direccion: str, nuevaPosicionAstronauta: tuple) 
     muestras = cantidadMuestrasCientificas(listaObjetos, nodo, posicion)
     newMapa = actualizarMapa(listaObjetos, nodo, posicion)
     tieneNave = nosMontamosEnNave(nodo, posicion)
-    movimientosNave = movimientosRestantesNave(nodo, tieneNave)
-    energiaGastada = totalEnergia(nodo, posicion, tieneNave)
-    
-    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave, movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos)
+    if tieneNave[1] == True:
+        movimientosNave = movimientosRestantesNave(nodo, False)
+        energiaGastada = totalEnergia(nodo, posicion, False)
+    else:
+        movimientosNave = movimientosRestantesNave(nodo, tieneNave[0])
+        energiaGastada = totalEnergia(nodo, posicion, tieneNave[0])
+    hijo = searchTree(newMapa, posicion, muestras, energiaGastada, tieneNave[0], movimientosNave, operadorRealizado=direccion, hijos=list(), nodoPadre=nodo, listaObjetos=listaObjetos)
     nodo.añadirHijo(hijo)
 
 
@@ -283,7 +287,7 @@ def expandir(nodo: searchTree, direcciones: dict):
         nodoSolucion.append(nodo)
         SOLUCION(nodo, solucion)
         #print("llegue a la meta")
-        #print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
+        print("Energia total gastada: ", nodo.getEnergiaTotalGastada())
         salirBucle()
     else: 
         meterHijosEnlistaEntrada(listaEntrada, nodo.hijos)
@@ -302,8 +306,8 @@ def resolver_uniforme(Mapa: list[list]) -> list:
 
     while key:
         menorNodo: searchTree = menorEnergia(listaEntrada)
-        #menorNodo.printMapa()
-        #menorNodo.imprimirInformacion()
+        menorNodo.printMapa()
+        menorNodo.imprimirInformacion()
         expandir(menorNodo, direcciones)
 
     if key==False:
