@@ -239,7 +239,7 @@ def recorrer_camino():
         # Si monta nave
         if ventana.matriz[fila][columna] == "5" and not usando_nave:
             usando_nave = True
-            pasos_nave = 20
+            pasos_nave = 21
             if hasattr(ventana, "nave_id"):
                 canvas.delete(ventana.nave_id)
                 ventana.nave_id = None
